@@ -55,7 +55,6 @@ export const SerifDisplay = ({ serifs, rarity, isVisible, mode = 'cutin' }: Seri
 
   // resultモード: 下からスライドして登場するシンプルな表示
   if (mode === 'result') {
-    const lastSerif = serifs[serifs.length - 1];
     return (
       <motion.div
         className="relative w-full max-w-md px-4"
@@ -81,8 +80,8 @@ export const SerifDisplay = ({ serifs, rarity, isVisible, mode = 'cutin' }: Seri
           <div className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b ${accentColor}`} />
           <div className={`absolute right-0 top-0 bottom-0 w-1 bg-gradient-to-b ${accentColor}`} />
 
-          {/* セリフテキスト */}
-          <p
+          {/* セリフテキスト（全行表示） */}
+          <div
             className="text-xl font-bold text-white text-center"
             style={{
               textShadow: isSSR
@@ -90,8 +89,10 @@ export const SerifDisplay = ({ serifs, rarity, isVisible, mode = 'cutin' }: Seri
                 : '2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000',
             }}
           >
-            「{lastSerif}」
-          </p>
+            {serifs.map((serif, index) => (
+              <p key={index}>「{serif}」</p>
+            ))}
+          </div>
         </div>
       </motion.div>
     );

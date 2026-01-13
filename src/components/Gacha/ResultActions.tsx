@@ -16,8 +16,9 @@ export const ResultActions = ({ result, onRetry, isVisible }: ResultActionsProps
 
   const character = result.character;
 
-  // シェア用テキスト
-  const shareText = `【ガチャカメラ】\n${character.rarity}の「${character.name}」を引きました！\n「${character.serifs[character.serifs.length - 1]}」`;
+  // シェア用テキスト（全セリフを改行で連結）
+  const serifsText = character.serifs.map(serif => `「${serif}」`).join('\n');
+  const shareText = `【ガチャカメラ】\n${character.rarity}の「${character.name}」を引きました！\n${serifsText}`;
   const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://gacha-camera.vercel.app';
 
   // スクリーンショットを撮影
