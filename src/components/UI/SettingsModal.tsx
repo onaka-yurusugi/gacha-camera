@@ -121,6 +121,7 @@ export const SettingsModal = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={onClose}
           >
             <motion.div
               className="w-full max-w-sm bg-black/90 backdrop-blur-md border border-white/30 rounded-2xl p-6 shadow-xl"

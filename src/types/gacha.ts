@@ -44,7 +44,7 @@ export const DEFAULT_CUSTOM_SETTINGS: CustomGachaSettings = {
 };
 
 export const DEFAULT_GACHA_SETTINGS: GachaSettings = {
-  mode: 'random',
+  mode: 'custom',
   customSettings: DEFAULT_CUSTOM_SETTINGS,
 };
 

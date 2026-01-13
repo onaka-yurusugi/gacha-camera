@@ -10,6 +10,7 @@ import {
 } from '@/types/gacha';
 
 const STORAGE_KEY = 'gacha-camera-settings';
+const FIRST_LAUNCH_KEY = 'gacha-camera-first-launch';
 
 // LocalStorageから設定を読み込む関数
 const getStoredSettings = (): GachaSettings => {
@@ -43,6 +44,18 @@ const getInitialSettings = (): GachaSettings => {
   return getStoredSettings();
 };
 
+// 初回起動かどうかをチェック（設定画面を自動で開くために使用）
+const checkIsFirstLaunch = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(FIRST_LAUNCH_KEY) === null;
+};
+
+// 初回起動フラグをマーク済みにする
+const markFirstLaunchComplete = (): void => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(FIRST_LAUNCH_KEY, 'done');
+};
+
 interface UseGachaSettingsReturn {
   settings: GachaSettings;
   setMode: (mode: GachaMode) => void;
@@ -55,10 +68,13 @@ interface UseGachaSettingsReturn {
   setSerifs: (serifs: string[]) => void;
   isCustomMode: boolean;
   isValidCustomSettings: boolean;
+  isFirstLaunch: boolean;
+  completeFirstLaunch: () => void;
 }
 
 export const useGachaSettings = (): UseGachaSettingsReturn => {
   const [settings, setSettings] = useState<GachaSettings>(getInitialSettings);
+  const [isFirstLaunch, setIsFirstLaunch] = useState(false);
 
   // Hydrationをトラッキング（useSyncExternalStoreパターン）
   const isHydrated = useSyncExternalStore(
@@ -66,6 +82,18 @@ export const useGachaSettings = (): UseGachaSettingsReturn => {
     () => true,
     () => false
   );
+
+  // 初回起動チェック（hydration後に実行）
+  useEffect(() => {
+    if (!isHydrated) return;
+    setIsFirstLaunch(checkIsFirstLaunch());
+  }, [isHydrated]);
+
+  // 初回起動完了をマークする関数
+  const completeFirstLaunch = useCallback(() => {
+    markFirstLaunchComplete();
+    setIsFirstLaunch(false);
+  }, []);
 
   // LocalStorageへ保存
   useEffect(() => {
@@ -117,5 +145,7 @@ export const useGachaSettings = (): UseGachaSettingsReturn => {
     setSerifs,
     isCustomMode: settings.mode === 'custom',
     isValidCustomSettings,
+    isFirstLaunch,
+    completeFirstLaunch,
   };
 };

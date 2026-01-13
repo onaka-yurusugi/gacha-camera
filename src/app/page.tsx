@@ -23,6 +23,8 @@ export default function Home() {
     setSerifs,
     isCustomMode,
     isValidCustomSettings,
+    isFirstLaunch,
+    completeFirstLaunch,
   } = useGachaSettings();
   const [isMuted, setIsMuted] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -34,6 +36,13 @@ export default function Home() {
       setIsInitialized(true);
     }
   }, [isInitialized]);
+
+  // 初回起動時に設定画面を自動オープン
+  useEffect(() => {
+    if (isFirstLaunch) {
+      setIsSettingsOpen(true);
+    }
+  }, [isFirstLaunch]);
 
   const handleTap = useCallback(() => {
     if (!isPlaying && isReady) {
@@ -82,7 +91,11 @@ export default function Home() {
 
   const handleSettingsClose = useCallback(() => {
     setIsSettingsOpen(false);
-  }, []);
+    // 初回起動時なら完了フラグをセット
+    if (isFirstLaunch) {
+      completeFirstLaunch();
+    }
+  }, [isFirstLaunch, completeFirstLaunch]);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
