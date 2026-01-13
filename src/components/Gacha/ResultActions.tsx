@@ -18,7 +18,7 @@ export const ResultActions = ({ result, onRetry, isVisible }: ResultActionsProps
 
   // シェア用テキスト（全セリフを改行で連結）
   const serifsText = character.serifs.map(serif => `「${serif}」`).join('\n');
-  const shareText = `【ガチャカメラ】\n${character.rarity}の「${character.name}」を引きました！\n${serifsText}`;
+  const shareText = `【虹演出カメラ】\n${character.rarity}の「${character.name}」を引きました！\n${serifsText}`;
   const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://gacha-camera.vercel.app';
 
   // スクリーンショットを撮影
@@ -130,7 +130,7 @@ export const ResultActions = ({ result, onRetry, isVisible }: ResultActionsProps
     if (blob && canShare) {
       const file = new File([blob], 'gacha-result.png', { type: 'image/png' });
       const shareData = {
-        title: 'ガチャカメラ',
+        title: '虹演出カメラ',
         text: shareText,
         url: shareUrl,
         files: [file],
@@ -149,7 +149,7 @@ export const ResultActions = ({ result, onRetry, isVisible }: ResultActionsProps
       // ファイル無しでシェア
       try {
         await navigator.share({
-          title: 'ガチャカメラ',
+          title: '虹演出カメラ',
           text: shareText,
           url: shareUrl,
         });
