@@ -1,4 +1,4 @@
-# Gacha Camera
+# 虹演出カメラ
 
 カメラをガチャゲームに変えるWebアプリ。
 
@@ -12,6 +12,8 @@
 - 効果音＆スムーズなアニメーション
 - モバイルブラウザ対応（iOS Safari / Android Chrome）
 - フロント/バックカメラ切り替え
+- 結果画像の保存・シェア機能
+- カスタムキャラクター設定
 
 ## クイックスタート
 
@@ -35,6 +37,11 @@ npm run dev
 2. 画面のどこかをタップ
 3. ガチャ演出を楽しむ
 4. キャラクターをゲット！
+5. 結果を保存・シェア
+
+### カスタム設定
+
+設定画面からオリジナルのキャラクターを追加できます。名前、レアリティ、セリフを自由に設定可能！
 
 ## 技術スタック
 
@@ -46,6 +53,7 @@ npm run dev
 | アニメーション | Framer Motion | 宣言的アニメーション |
 | サウンド | Howler.js | クロスブラウザ対応 |
 | カメラ | MediaDevices API | 標準Web API |
+| スクリーンショット | modern-screenshot | 画像保存・シェア |
 
 ## レアリティシステム
 
@@ -103,8 +111,13 @@ src/
 │   │   ├── RainbowEffect.tsx     # 背景エフェクト
 │   │   ├── SerifDisplay.tsx      # セリフ表示
 │   │   ├── RarityBadge.tsx       # レアリティバッジ
-│   │   └── NameReveal.tsx        # 名前ドカン表示
+│   │   ├── NameReveal.tsx        # 名前ドカン表示
+│   │   ├── CharacterCutin.tsx    # キャラクターカットイン
+│   │   └── ResultActions.tsx     # 結果画面アクション（保存・シェア）
 │   └── UI/                # UIコンポーネント
+│       ├── Header.tsx            # ヘッダー
+│       ├── TapToSummon.tsx       # タップ指示UI
+│       └── SettingsModal.tsx     # 設定モーダル
 ├── hooks/                 # カスタムフック
 │   ├── useCamera.ts       # カメラ制御
 │   └── useGacha.ts        # ガチャロジック
