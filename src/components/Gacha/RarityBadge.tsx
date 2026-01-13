@@ -3,9 +3,12 @@
 import { motion } from 'framer-motion';
 import { Rarity, RARITY_CONFIG } from '@/types/gacha';
 
+type DisplayMode = 'cutin' | 'result';
+
 interface RarityBadgeProps {
   rarity: Rarity;
   isVisible: boolean;
+  mode?: DisplayMode;
 }
 
 const getRarityEmoji = (rarity: Rarity): string => {
@@ -34,7 +37,7 @@ const getGlowColor = (rarity: Rarity): string => {
   }
 };
 
-export const RarityBadge = ({ rarity, isVisible }: RarityBadgeProps) => {
+export const RarityBadge = ({ rarity, isVisible, mode = 'cutin' }: RarityBadgeProps) => {
   const config = RARITY_CONFIG[rarity];
   const emoji = getRarityEmoji(rarity);
   const glowColor = getGlowColor(rarity);
@@ -43,6 +46,45 @@ export const RarityBadge = ({ rarity, isVisible }: RarityBadgeProps) => {
 
   if (!isVisible) return null;
 
+  // resultモード: コンパクトで静かな表示
+  if (mode === 'result') {
+    return (
+      <motion.div
+        className="relative"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{
+          type: 'spring',
+          stiffness: 300,
+          damping: 25,
+        }}
+      >
+        <div
+          className={`
+            px-6 py-2 rounded-xl
+            bg-gradient-to-r ${config.color}
+            text-white font-black text-2xl
+            flex items-center gap-2
+            border border-white/30
+          `}
+          style={{
+            boxShadow: `0 0 15px ${glowColor}`,
+          }}
+        >
+          <span>{emoji}</span>
+          <span
+            className="drop-shadow-lg tracking-wider"
+            style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}
+          >
+            {config.label}
+          </span>
+          <span>{emoji}</span>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // cutinモード: 従来の派手な演出
   return (
     <motion.div
       className="fixed bottom-56 left-0 right-0 flex justify-center z-20 overflow-visible"

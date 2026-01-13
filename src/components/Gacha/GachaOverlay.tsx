@@ -171,35 +171,61 @@ export const GachaOverlay = ({ isActive, result, onComplete, onRetry }: GachaOve
 
         {/* Main content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          {/* 1. セリフのみ表示 */}
+          {/* カットイン演出中: セリフのみ中央に表示 */}
           <AnimatePresence>
-            {showSerif && (
+            {showSerif && phase !== 'result' && (
               <SerifDisplay
                 serifs={result.character.serifs}
                 rarity={result.character.rarity}
                 isVisible={showSerif}
+                mode="cutin"
               />
             )}
           </AnimatePresence>
 
-          {/* 2. レアリティバッジ */}
+          {/* レアリティバッジ（カットイン演出中） */}
           <AnimatePresence>
-            {showRarity && (
-              <RarityBadge rarity={rarity} isVisible={showRarity} />
+            {showRarity && phase !== 'result' && (
+              <RarityBadge rarity={rarity} isVisible={showRarity} mode="cutin" />
             )}
           </AnimatePresence>
 
-          {/* 3. 名前ドカン！ */}
+          {/* 名前ドカン！（カットイン演出中） */}
           <AnimatePresence>
-            {showName && (
+            {showName && phase !== 'result' && (
               <NameReveal
                 name={result.character.name}
                 rarity={result.character.rarity}
                 isVisible={showName}
+                mode="cutin"
               />
             )}
           </AnimatePresence>
         </div>
+
+        {/* 結果画面: シェアボタンの上に レアリティ → 名前 → セリフ の順で配置 */}
+        {phase === 'result' && (
+          <div className="absolute inset-x-0 bottom-36 flex flex-col items-center gap-3 pointer-events-none">
+            {/* レアリティ枠 */}
+            <RarityBadge rarity={rarity} isVisible={true} mode="result" />
+
+            {/* 名前枠 */}
+            <NameReveal
+              name={result.character.name}
+              rarity={result.character.rarity}
+              isVisible={true}
+              mode="result"
+            />
+
+            {/* セリフ枠 */}
+            <SerifDisplay
+              serifs={result.character.serifs}
+              rarity={result.character.rarity}
+              isVisible={true}
+              mode="result"
+            />
+          </div>
+        )}
 
         {/* 4. 結果画面アクション（シェア・再召喚） */}
         {onRetry && (

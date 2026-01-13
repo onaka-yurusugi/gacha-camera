@@ -3,10 +3,13 @@
 import { motion } from 'framer-motion';
 import { Rarity } from '@/types/gacha';
 
+type DisplayMode = 'cutin' | 'result';
+
 interface NameRevealProps {
   name: string;
   rarity: Rarity;
   isVisible: boolean;
+  mode?: DisplayMode;
 }
 
 const getNameColor = (rarity: Rarity): string => {
@@ -48,7 +51,7 @@ const getGlowColor = (rarity: Rarity): string => {
   }
 };
 
-export const NameReveal = ({ name, rarity, isVisible }: NameRevealProps) => {
+export const NameReveal = ({ name, rarity, isVisible, mode = 'cutin' }: NameRevealProps) => {
   if (!isVisible) return null;
 
   const isSSR = rarity === 'SSR';
@@ -56,6 +59,60 @@ export const NameReveal = ({ name, rarity, isVisible }: NameRevealProps) => {
   const borderColor = getBorderColor(rarity);
   const glowColor = getGlowColor(rarity);
 
+  // resultモード: コンパクトで静かな表示
+  if (mode === 'result') {
+    return (
+      <motion.div
+        className="relative"
+        initial={{ scale: 0.8, opacity: 0, y: -20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        transition={{
+          type: 'spring',
+          stiffness: 300,
+          damping: 25,
+          delay: 0.1,
+        }}
+      >
+        <div
+          className={`
+            relative px-8 py-3
+            bg-black/90 backdrop-blur-md
+            border-y-2 ${borderColor}
+          `}
+          style={{
+            boxShadow: `0 0 20px ${glowColor}`,
+          }}
+        >
+          {/* グラデーションアクセントライン */}
+          <div className={`absolute top-0 left-4 right-4 h-0.5 bg-gradient-to-r ${
+            isSSR ? 'from-yellow-400 via-pink-500 to-purple-500' :
+            rarity === 'SR' ? 'from-yellow-400 via-amber-500 to-yellow-400' :
+            rarity === 'R' ? 'from-blue-400 via-cyan-500 to-blue-400' :
+            'from-gray-400 via-white to-gray-400'
+          }`} />
+          <div className={`absolute bottom-0 left-4 right-4 h-0.5 bg-gradient-to-r ${
+            isSSR ? 'from-purple-500 via-pink-500 to-yellow-400' :
+            rarity === 'SR' ? 'from-yellow-400 via-amber-500 to-yellow-400' :
+            rarity === 'R' ? 'from-blue-400 via-cyan-500 to-blue-400' :
+            'from-gray-400 via-white to-gray-400'
+          }`} />
+
+          <h2
+            className={`text-3xl font-black text-center tracking-wider ${nameColor}`}
+            style={{
+              textShadow: isSSR
+                ? '0 0 20px rgba(255, 215, 0, 0.6), 0 2px 0 rgba(0, 0, 0, 0.3)'
+                : '0 0 10px rgba(255, 255, 255, 0.3), 0 2px 0 rgba(0, 0, 0, 0.3)',
+            }}
+          >
+            【{name}】
+          </h2>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // cutinモード: 従来の派手な演出
   return (
     <motion.div
       className="fixed inset-x-0 bottom-36 z-30 flex items-center justify-center overflow-hidden"
