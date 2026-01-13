@@ -9,12 +9,14 @@ import { SerifDisplay } from './SerifDisplay';
 import { NameReveal } from './NameReveal';
 import { CrystalShatter } from './CrystalShatter';
 import { SSRExplosion } from './SSRExplosion';
+import { ResultActions } from './ResultActions';
 import { soundManager } from '@/lib/sounds';
 
 interface GachaOverlayProps {
   isActive: boolean;
   result: GachaResult | null;
   onComplete: () => void;
+  onRetry?: () => void;
 }
 
 type AnimationPhase =
@@ -41,13 +43,13 @@ const BASE_PHASE_TIMINGS = {
   fadeout: 500,
 } as const;
 
-// セリフ表示時間を動的に計算（セリフ数 × 900ms + 余裕 300ms）
+// セリフ表示時間を動的に計算（セリフ数 × 900ms + 余裕 800ms）
 const SERIF_TIME_PER_LINE = 900;
-const SERIF_BUFFER = 300;
+const SERIF_BUFFER = 800;
 const calculateSerifTime = (serifCount: number): number =>
   serifCount * SERIF_TIME_PER_LINE + SERIF_BUFFER;
 
-export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps) => {
+export const GachaOverlay = ({ isActive, result, onComplete, onRetry }: GachaOverlayProps) => {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
 
   useEffect(() => {
@@ -62,8 +64,8 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
 
     const runSequence = async () => {
       // Crystal Shatter
+      // 注: gachaRoll音はpage.tsxのhandleTapで即座に再生済み
       setPhase('shatter');
-      soundManager.play('gachaRoll');
       await delay(BASE_PHASE_TIMINGS.shatter);
 
       // Flash
@@ -94,15 +96,17 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
       soundManager.play('cutin');
       await delay(BASE_PHASE_TIMINGS.name);
 
-      // Result (余韻：顔と名前が見える時間)
+      // Result (ボタン押すまで待機)
       setPhase('result');
-      await delay(BASE_PHASE_TIMINGS.result);
-
-      // Fadeout
-      setPhase('fadeout');
-      await delay(BASE_PHASE_TIMINGS.fadeout);
-
-      onComplete();
+      // onRetryがある場合はユーザーの操作を待つ（自動進行しない）
+      // onRetryがない場合は従来通り自動進行
+      if (!onRetry) {
+        await delay(BASE_PHASE_TIMINGS.result);
+        setPhase('fadeout');
+        await delay(BASE_PHASE_TIMINGS.fadeout);
+        onComplete();
+      }
+      // onRetryがある場合はここで止まり、onRetryが呼ばれるのを待つ
     };
 
     runSequence();
@@ -196,6 +200,15 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
             )}
           </AnimatePresence>
         </div>
+
+        {/* 4. 結果画面アクション（シェア・再召喚） */}
+        {onRetry && (
+          <ResultActions
+            result={result}
+            onRetry={onRetry}
+            isVisible={phase === 'result'}
+          />
+        )}
       </motion.div>
     </AnimatePresence>
   );

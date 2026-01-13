@@ -58,7 +58,7 @@ export const NameReveal = ({ name, rarity, isVisible }: NameRevealProps) => {
 
   return (
     <motion.div
-      className="fixed inset-0 z-30 flex items-end justify-center pb-32 overflow-hidden"
+      className="fixed inset-x-0 bottom-36 z-30 flex items-center justify-center overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

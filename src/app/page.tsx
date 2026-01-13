@@ -37,6 +37,9 @@ export default function Home() {
 
   const handleTap = useCallback(() => {
     if (!isPlaying && isReady) {
+      // タップした瞬間に音を鳴らす（Reactのレンダリング待ちを回避）
+      soundManager.play('gachaRoll');
+
       // カスタムモードかつ有効な設定がある場合
       if (isCustomMode && isValidCustomSettings) {
         pull({
@@ -52,6 +55,21 @@ export default function Home() {
   const handleComplete = useCallback(() => {
     reset();
   }, [reset]);
+
+  const handleRetry = useCallback(() => {
+    reset();
+    // 少し待ってから再召喚
+    setTimeout(() => {
+      if (isCustomMode && isValidCustomSettings) {
+        pull({
+          useCustom: true,
+          customSettings: settings.customSettings,
+        });
+      } else {
+        pull();
+      }
+    }, 100);
+  }, [reset, pull, isCustomMode, isValidCustomSettings, settings.customSettings]);
 
   const handleMuteToggle = useCallback(() => {
     const newMuted = soundManager.toggleMute();
@@ -93,6 +111,7 @@ export default function Home() {
           isActive={isPlaying}
           result={result}
           onComplete={handleComplete}
+          onRetry={handleRetry}
         />
       </AnimatePresence>
 

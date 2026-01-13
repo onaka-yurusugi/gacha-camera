@@ -21,7 +21,7 @@ const SOUND_PATHS: Record<SoundKey, string> = {
   rGet: '/sounds/r-get.mp3',
   nGet: '/sounds/n-get.mp3',
   cutin: '/sounds/cutin.mp3',
-  serifAppear: '/sounds/cutin.mp3', // セリフ登場音（cutinを再利用、後で専用音に変更可）
+  serifAppear: '/sounds/cutin.mp3',
 };
 
 const RARITY_SOUND_MAP: Record<Rarity, SoundKey> = {
