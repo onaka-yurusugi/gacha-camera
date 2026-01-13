@@ -5,8 +5,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { GachaResult } from '@/types/gacha';
 import { RainbowEffect } from './RainbowEffect';
 import { RarityBadge } from './RarityBadge';
-import { CharacterCutin } from './CharacterCutin';
 import { SerifDisplay } from './SerifDisplay';
+import { NameReveal } from './NameReveal';
+import { CrystalShatter } from './CrystalShatter';
+import { SSRExplosion } from './SSRExplosion';
 import { soundManager } from '@/lib/sounds';
 
 interface GachaOverlayProps {
@@ -17,24 +19,33 @@ interface GachaOverlayProps {
 
 type AnimationPhase =
   | 'idle'
+  | 'shatter'
   | 'flash'
   | 'rolling'
+  | 'ssrExplosion'
   | 'effect'
-  | 'rarity'
-  | 'cutin'
   | 'serif'
+  | 'rarity'
+  | 'name'
   | 'fadeout';
 
-const PHASE_TIMINGS: Record<AnimationPhase, number> = {
+const BASE_PHASE_TIMINGS = {
   idle: 0,
-  flash: 100,
-  rolling: 500,
-  effect: 1000,
-  rarity: 200,
-  cutin: 300,
-  serif: 2000,
+  shatter: 600,
+  flash: 150,
+  rolling: 600,
+  ssrExplosion: 800,
+  effect: 1200,
+  rarity: 1000,  // レアリティバッジ
+  name: 1500,    // 名前ドカン表示
   fadeout: 500,
-};
+} as const;
+
+// セリフ表示時間を動的に計算（セリフ数 × 700ms + 少しの余裕 300ms）
+const SERIF_TIME_PER_LINE = 700;
+const SERIF_BUFFER = 300;
+const calculateSerifTime = (serifCount: number): number =>
+  serifCount * SERIF_TIME_PER_LINE + SERIF_BUFFER;
 
 export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps) => {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
@@ -45,37 +56,51 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
       return;
     }
 
+    const isSSR = result.character.rarity === 'SSR';
+
+    const serifTime = calculateSerifTime(result.character.serifs.length);
+
     const runSequence = async () => {
+      // Crystal Shatter
+      setPhase('shatter');
+      soundManager.play('gachaRoll');
+      await delay(BASE_PHASE_TIMINGS.shatter);
+
       // Flash
       setPhase('flash');
-      await delay(PHASE_TIMINGS.flash);
+      await delay(BASE_PHASE_TIMINGS.flash);
 
       // Rolling
       setPhase('rolling');
-      soundManager.play('gachaRoll');
-      await delay(PHASE_TIMINGS.rolling);
+      await delay(BASE_PHASE_TIMINGS.rolling);
+
+      // SSR Explosion (only for SSR)
+      if (isSSR) {
+        setPhase('ssrExplosion');
+        await delay(BASE_PHASE_TIMINGS.ssrExplosion);
+      }
 
       // Effect
       setPhase('effect');
       soundManager.playForRarity(result.character.rarity);
-      await delay(PHASE_TIMINGS.effect);
+      await delay(BASE_PHASE_TIMINGS.effect);
+
+      // Serif (セリフのみ表示)
+      setPhase('serif');
+      await delay(serifTime);
 
       // Rarity badge
       setPhase('rarity');
-      await delay(PHASE_TIMINGS.rarity);
+      await delay(BASE_PHASE_TIMINGS.rarity);
 
-      // Character cutin
-      setPhase('cutin');
+      // Name reveal (名前ドカン！)
+      setPhase('name');
       soundManager.play('cutin');
-      await delay(PHASE_TIMINGS.cutin);
-
-      // Serif
-      setPhase('serif');
-      await delay(PHASE_TIMINGS.serif);
+      await delay(BASE_PHASE_TIMINGS.name);
 
       // Fadeout
       setPhase('fadeout');
-      await delay(PHASE_TIMINGS.fadeout);
+      await delay(BASE_PHASE_TIMINGS.fadeout);
 
       onComplete();
     };
@@ -86,10 +111,13 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
   if (!isActive || !result) return null;
 
   const rarity = result.character.rarity;
-  const showEffect = phase !== 'idle' && phase !== 'flash' && phase !== 'rolling';
-  const showRarity = phase === 'rarity' || phase === 'cutin' || phase === 'serif';
-  const showCutin = phase === 'cutin' || phase === 'serif';
-  const showSerif = phase === 'serif';
+  const isSSR = rarity === 'SSR';
+  const showShatter = phase === 'shatter';
+  const showSSRExplosion = phase === 'ssrExplosion' && isSSR;
+  const showEffect = !['idle', 'shatter', 'flash', 'rolling'].includes(phase);
+  const showSerif = phase === 'serif'; // セリフのみ
+  const showRarity = phase === 'rarity'; // レアリティバッジ
+  const showName = phase === 'name'; // 名前ドカン
 
   return (
     <AnimatePresence>
@@ -100,53 +128,95 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
       >
+        {/* Crystal Shatter effect */}
+        <AnimatePresence>
+          {showShatter && (
+            <CrystalShatter rarity={rarity} isVisible={showShatter} />
+          )}
+        </AnimatePresence>
+
         {/* White flash */}
         {phase === 'flash' && (
           <motion.div
             className="absolute inset-0 bg-white z-50"
             initial={{ opacity: 1 }}
             animate={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: 0.15 }}
           />
         )}
 
         {/* Rolling animation */}
         {phase === 'rolling' && (
           <motion.div
-            className="absolute inset-0 flex items-center justify-center bg-black/50 z-30"
+            className="absolute inset-0 flex items-center justify-center bg-black/60 z-30"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
             <motion.div
-              className="w-24 h-24 rounded-full border-4 border-white border-t-transparent"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
-            />
+              className="relative"
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 0.5, repeat: Infinity }}
+            >
+              {/* Outer ring */}
+              <motion.div
+                className={`w-28 h-28 rounded-full border-4 ${isSSR ? 'border-yellow-400' : 'border-white'} border-t-transparent`}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 0.4, repeat: Infinity, ease: 'linear' }}
+              />
+              {/* Inner ring */}
+              <motion.div
+                className={`absolute inset-2 rounded-full border-2 ${isSSR ? 'border-yellow-300' : 'border-white/50'} border-b-transparent`}
+                animate={{ rotate: -360 }}
+                transition={{ duration: 0.6, repeat: Infinity, ease: 'linear' }}
+              />
+              {/* Center dot */}
+              <motion.div
+                className={`absolute inset-0 m-auto w-4 h-4 rounded-full ${isSSR ? 'bg-yellow-400' : 'bg-white'}`}
+                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 0.3, repeat: Infinity }}
+              />
+            </motion.div>
           </motion.div>
         )}
+
+        {/* SSR Explosion effect */}
+        <AnimatePresence>
+          {showSSRExplosion && (
+            <SSRExplosion isVisible={showSSRExplosion} />
+          )}
+        </AnimatePresence>
 
         {/* Rainbow/Gold/Blue effect */}
         <RainbowEffect rarity={rarity} isVisible={showEffect} />
 
         {/* Main content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
+          {/* 1. セリフのみ表示 */}
+          <AnimatePresence>
+            {showSerif && (
+              <SerifDisplay
+                serifs={result.character.serifs}
+                rarity={result.character.rarity}
+                isVisible={showSerif}
+              />
+            )}
+          </AnimatePresence>
+
+          {/* 2. レアリティバッジ */}
           <AnimatePresence>
             {showRarity && (
               <RarityBadge rarity={rarity} isVisible={showRarity} />
             )}
           </AnimatePresence>
 
+          {/* 3. 名前ドカン！ */}
           <AnimatePresence>
-            {showCutin && (
-              <div className="mt-4">
-                <CharacterCutin character={result.character} isVisible={showCutin} />
-              </div>
-            )}
-          </AnimatePresence>
-
-          <AnimatePresence>
-            {showSerif && (
-              <SerifDisplay serif={result.character.serif} isVisible={showSerif} />
+            {showName && (
+              <NameReveal
+                name={result.character.name}
+                rarity={result.character.rarity}
+                isVisible={showName}
+              />
             )}
           </AnimatePresence>
         </div>

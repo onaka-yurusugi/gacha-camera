@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { CameraView } from '@/components/Camera/CameraView';
 import { GachaOverlay } from '@/components/Gacha/GachaOverlay';
-import { TapToSummon } from '@/components/UI/TapToSummon';
+import { SummonGate } from '@/components/Gacha/SummonGate';
 import { Header } from '@/components/UI/Header';
 import { SettingsModal } from '@/components/UI/SettingsModal';
 import { useCamera } from '@/hooks/useCamera';
@@ -20,7 +20,7 @@ export default function Home() {
     setMode,
     setRarity,
     setName,
-    setSerif,
+    setSerifs,
     isCustomMode,
     isValidCustomSettings,
   } = useGachaSettings();
@@ -82,9 +82,9 @@ export default function Home() {
         />
       </AnimatePresence>
 
-      {/* Tap to summon prompt */}
+      {/* Summon Gate with door and crystal */}
       <AnimatePresence>
-        <TapToSummon isVisible={isReady && !isPlaying} onTap={handleTap} />
+        <SummonGate isVisible={isReady && !isPlaying} onTap={handleTap} />
       </AnimatePresence>
 
       {/* Gacha animation overlay */}
@@ -104,7 +104,7 @@ export default function Home() {
         onModeChange={setMode}
         onRarityChange={setRarity}
         onNameChange={setName}
-        onSerifChange={setSerif}
+        onSerifsChange={setSerifs}
       />
     </main>
   );

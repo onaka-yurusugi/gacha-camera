@@ -65,7 +65,7 @@ export const useGacha = (): UseGachaReturn => {
         id: 'custom',
         name: options.customSettings.name,
         rarity: options.customSettings.rarity,
-        serif: options.customSettings.serif,
+        serifs: options.customSettings.serifs,
       };
     } else {
       // ランダムモード: 既存ロジック

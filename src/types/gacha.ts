@@ -4,7 +4,7 @@ export interface GachaCharacter {
   id: string;
   name: string;
   rarity: Rarity;
-  serif: string;
+  serifs: string[];  // 複数セリフ対応（順番に表示される）
   description?: string;
 }
 
@@ -26,7 +26,7 @@ export type GachaMode = 'random' | 'custom';
 export interface CustomGachaSettings {
   rarity: Rarity;
   name: string;
-  serif: string;
+  serifs: string[];
 }
 
 export interface GachaSettings {
@@ -37,7 +37,7 @@ export interface GachaSettings {
 export const DEFAULT_CUSTOM_SETTINGS: CustomGachaSettings = {
   rarity: 'SSR',
   name: '',
-  serif: '',
+  serifs: [''],
 };
 
 export const DEFAULT_GACHA_SETTINGS: GachaSettings = {

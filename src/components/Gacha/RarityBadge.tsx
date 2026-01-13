@@ -29,10 +29,10 @@ export const RarityBadge = ({ rarity, isVisible }: RarityBadgeProps) => {
 
   return (
     <motion.div
-      className="relative z-20"
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0, opacity: 0 }}
+      className="fixed top-1/4 left-0 right-0 flex justify-center z-20"
+      initial={{ scale: 0, opacity: 0, y: -50 }}
+      animate={{ scale: 1, opacity: 1, y: 0 }}
+      exit={{ scale: 0, opacity: 0, y: -50 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
       <motion.div

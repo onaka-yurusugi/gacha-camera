@@ -25,7 +25,7 @@ const getStoredSettings = (): GachaSettings => {
       parsed.mode &&
       parsed.customSettings &&
       typeof parsed.customSettings.name === 'string' &&
-      typeof parsed.customSettings.serif === 'string' &&
+      Array.isArray(parsed.customSettings.serifs) &&
       parsed.customSettings.rarity
     ) {
       return parsed;
@@ -52,7 +52,7 @@ interface UseGachaSettingsReturn {
   ) => void;
   setRarity: (rarity: Rarity) => void;
   setName: (name: string) => void;
-  setSerif: (serif: string) => void;
+  setSerifs: (serifs: string[]) => void;
   isCustomMode: boolean;
   isValidCustomSettings: boolean;
 }
@@ -98,15 +98,15 @@ export const useGachaSettings = (): UseGachaSettingsReturn => {
     [updateCustomField]
   );
 
-  const setSerif = useCallback(
-    (serif: string) => updateCustomField('serif', serif),
+  const setSerifs = useCallback(
+    (serifs: string[]) => updateCustomField('serifs', serifs),
     [updateCustomField]
   );
 
   // カスタム設定のバリデーション（名前とセリフが必須）
   const isValidCustomSettings =
     settings.customSettings.name.trim() !== '' &&
-    settings.customSettings.serif.trim() !== '';
+    settings.customSettings.serifs.some((s) => s.trim() !== '');
 
   return {
     settings,
@@ -114,7 +114,7 @@ export const useGachaSettings = (): UseGachaSettingsReturn => {
     updateCustomField,
     setRarity,
     setName,
-    setSerif,
+    setSerifs,
     isCustomMode: settings.mode === 'custom',
     isValidCustomSettings,
   };

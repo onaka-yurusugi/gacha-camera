@@ -15,7 +15,7 @@ interface SettingsModalProps {
   onModeChange: (mode: GachaMode) => void;
   onRarityChange: (rarity: Rarity) => void;
   onNameChange: (name: string) => void;
-  onSerifChange: (serif: string) => void;
+  onSerifsChange: (serifs: string[]) => void;
 }
 
 const RARITIES: Rarity[] = ['N', 'R', 'SR', 'SSR'];
@@ -87,10 +87,20 @@ export const SettingsModal = ({
   onModeChange,
   onRarityChange,
   onNameChange,
-  onSerifChange,
+  onSerifsChange,
 }: SettingsModalProps) => {
   const isCustomMode = settings.mode === 'custom';
   const { customSettings } = settings;
+
+  // セリフを改行区切りのテキストとして扱う
+  const serifsText = customSettings.serifs.join('\n');
+  const handleSerifsTextChange = (text: string) => {
+    // 改行で分割し、空行を除去しない（入力中に空行があっても許容）
+    const lines = text.split('\n');
+    onSerifsChange(lines);
+  };
+
+  const hasValidSerifs = customSettings.serifs.some((s) => s.trim() !== '');
 
   return (
     <AnimatePresence>
@@ -178,16 +188,16 @@ export const SettingsModal = ({
                       />
                     </div>
 
-                    {/* Serif Input */}
+                    {/* Serifs Input */}
                     <div>
                       <label className="block text-sm text-white/60 mb-2">
-                        セリフ
+                        セリフ（複数行で順番に表示）
                       </label>
                       <textarea
-                        value={customSettings.serif}
-                        onChange={(e) => onSerifChange(e.target.value)}
-                        placeholder="セリフを入力..."
-                        rows={3}
+                        value={serifsText}
+                        onChange={(e) => handleSerifsTextChange(e.target.value)}
+                        placeholder="1行目：最初のセリフ&#10;2行目：次のセリフ&#10;3行目：最後のセリフ"
+                        rows={4}
                         className="
                           w-full px-4 py-3 rounded-lg
                           bg-white/10 border border-white/20
@@ -196,10 +206,13 @@ export const SettingsModal = ({
                           transition-colors resize-none
                         "
                       />
+                      <p className="text-xs text-white/40 mt-1">
+                        改行で区切ると複数のセリフが順番に表示されます
+                      </p>
                     </div>
 
                     {/* Validation hint */}
-                    {(!customSettings.name.trim() || !customSettings.serif.trim()) && (
+                    {(!customSettings.name.trim() || !hasValidSerifs) && (
                       <p className="text-xs text-amber-400/80">
                         名前とセリフを入力してね
                       </p>
@@ -212,7 +225,7 @@ export const SettingsModal = ({
               <div className="mt-6 pt-4 border-t border-white/10">
                 <p className="text-xs text-white/40 text-center">
                   {isCustomMode
-                    ? customSettings.name && customSettings.serif
+                    ? customSettings.name && hasValidSerifs
                       ? `${RARITY_CONFIG[customSettings.rarity].label} 「${customSettings.name}」が出るよ`
                       : '設定を完了してね'
                     : 'タップでランダム召喚'}
