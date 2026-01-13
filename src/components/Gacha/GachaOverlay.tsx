@@ -21,7 +21,6 @@ type AnimationPhase =
   | 'idle'
   | 'shatter'
   | 'flash'
-  | 'rolling'
   | 'ssrExplosion'
   | 'effect'
   | 'serif'
@@ -31,11 +30,10 @@ type AnimationPhase =
 
 const BASE_PHASE_TIMINGS = {
   idle: 0,
-  shatter: 500,      // クリスタル破砕（少し短縮）
+  shatter: 500,      // クリスタル破砕
   flash: 150,
-  rolling: 400,      // ローリング（短縮：600→400）
   ssrExplosion: 800,
-  effect: 600,       // 背景エフェクト（大幅短縮：1200→600）
+  effect: 600,       // 背景エフェクト
   rarity: 1000,      // レアリティバッジ
   name: 1200,        // 名前ドカン表示
   fadeout: 500,
@@ -69,10 +67,6 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
       // Flash
       setPhase('flash');
       await delay(BASE_PHASE_TIMINGS.flash);
-
-      // Rolling
-      setPhase('rolling');
-      await delay(BASE_PHASE_TIMINGS.rolling);
 
       // SSR Explosion (only for SSR)
       if (isSSR) {
@@ -114,9 +108,10 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
   const isSSR = rarity === 'SSR';
   const showShatter = phase === 'shatter';
   const showSSRExplosion = phase === 'ssrExplosion' && isSSR;
-  const showEffect = !['idle', 'shatter', 'flash', 'rolling'].includes(phase);
+  // shatterフェーズから背景エフェクトを表示（扉が開く時から演出開始）
+  const showEffect = !['idle', 'flash'].includes(phase);
   // セリフ・レアリティ・名前は一度表示したら消えない
-  const phaseOrder = ['idle', 'shatter', 'flash', 'rolling', 'ssrExplosion', 'effect', 'serif', 'rarity', 'name', 'fadeout'];
+  const phaseOrder = ['idle', 'shatter', 'flash', 'ssrExplosion', 'effect', 'serif', 'rarity', 'name', 'fadeout'];
   const currentPhaseIndex = phaseOrder.indexOf(phase);
   const showSerif = currentPhaseIndex >= phaseOrder.indexOf('serif') && phase !== 'fadeout';
   const showRarity = currentPhaseIndex >= phaseOrder.indexOf('rarity') && phase !== 'fadeout';
@@ -148,39 +143,6 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
           />
         )}
 
-        {/* Rolling animation */}
-        {phase === 'rolling' && (
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center bg-black/60 z-30"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <motion.div
-              className="relative"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 0.5, repeat: Infinity }}
-            >
-              {/* Outer ring */}
-              <motion.div
-                className={`w-28 h-28 rounded-full border-4 ${isSSR ? 'border-yellow-400' : 'border-white'} border-t-transparent`}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 0.4, repeat: Infinity, ease: 'linear' }}
-              />
-              {/* Inner ring */}
-              <motion.div
-                className={`absolute inset-2 rounded-full border-2 ${isSSR ? 'border-yellow-300' : 'border-white/50'} border-b-transparent`}
-                animate={{ rotate: -360 }}
-                transition={{ duration: 0.6, repeat: Infinity, ease: 'linear' }}
-              />
-              {/* Center dot */}
-              <motion.div
-                className={`absolute inset-0 m-auto w-4 h-4 rounded-full ${isSSR ? 'bg-yellow-400' : 'bg-white'}`}
-                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 0.3, repeat: Infinity }}
-              />
-            </motion.div>
-          </motion.div>
-        )}
 
         {/* SSR Explosion effect */}
         <AnimatePresence>
