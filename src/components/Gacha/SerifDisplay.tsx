@@ -1,8 +1,9 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Rarity } from '@/types/gacha';
+import { soundManager } from '@/lib/sounds';
 
 interface SerifDisplayProps {
   serifs: string[];
@@ -27,10 +28,12 @@ const SERIF_DISPLAY_TIME = 900; // 各セリフの表示時間(ms)
 
 export const SerifDisplay = ({ serifs, rarity, isVisible }: SerifDisplayProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const prevIndexRef = useRef(0);
 
   useEffect(() => {
     if (!isVisible) {
       setCurrentIndex(0);
+      prevIndexRef.current = 0;
       return;
     }
 
@@ -42,6 +45,14 @@ export const SerifDisplay = ({ serifs, rarity, isVisible }: SerifDisplayProps) =
       return () => clearTimeout(timer);
     }
   }, [isVisible, currentIndex, serifs.length]);
+
+  // セリフが増えたらSEを再生
+  useEffect(() => {
+    if (currentIndex > prevIndexRef.current && currentIndex <= serifs.length) {
+      soundManager.play('serifAppear');
+    }
+    prevIndexRef.current = currentIndex;
+  }, [currentIndex, serifs.length]);
 
   if (!isVisible) return null;
 
@@ -97,9 +108,10 @@ export const SerifDisplay = ({ serifs, rarity, isVisible }: SerifDisplayProps) =
                 {/* セリフボックス */}
                 <motion.div
                   className={`
-                    relative mx-4 px-8 py-4
-                    bg-black/85 backdrop-blur-sm
-                    border-y-2 border-white/30
+                    relative mx-4 px-8 py-5
+                    bg-black/95 backdrop-blur-md
+                    border-y-2 border-white/40
+                    shadow-[0_0_30px_rgba(0,0,0,0.8)]
                     ${isLast && isSSR ? 'border-yellow-400/60' : ''}
                   `}
                   animate={isLast && isSSR ? {
@@ -120,8 +132,8 @@ export const SerifDisplay = ({ serifs, rarity, isVisible }: SerifDisplayProps) =
                     `}
                     style={{
                       textShadow: isSSR
-                        ? '0 0 20px rgba(255, 215, 0, 0.5)'
-                        : '0 0 10px rgba(255, 255, 255, 0.3)',
+                        ? '2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 20px rgba(255, 215, 0, 0.8)'
+                        : '2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 10px rgba(255, 255, 255, 0.5)',
                     }}
                     initial={{ scale: 1.2 }}
                     animate={{ scale: 1 }}

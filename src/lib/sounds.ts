@@ -1,7 +1,7 @@
 import { Howl } from 'howler';
 import { Rarity } from '@/types/gacha';
 
-type SoundKey = 'gachaRoll' | 'ssrGet' | 'srGet' | 'rGet' | 'nGet' | 'cutin';
+type SoundKey = 'gachaRoll' | 'ssrGet' | 'srGet' | 'rGet' | 'nGet' | 'cutin' | 'serifAppear';
 
 interface SoundManager {
   sounds: Map<SoundKey, Howl>;
@@ -21,6 +21,7 @@ const SOUND_PATHS: Record<SoundKey, string> = {
   rGet: '/sounds/r-get.mp3',
   nGet: '/sounds/n-get.mp3',
   cutin: '/sounds/cutin.mp3',
+  serifAppear: '/sounds/cutin.mp3', // セリフ登場音（cutinを再利用、後で専用音に変更可）
 };
 
 const RARITY_SOUND_MAP: Record<Rarity, SoundKey> = {
@@ -39,10 +40,11 @@ export const soundManager: SoundManager = {
     if (this.isInitialized) return;
 
     Object.entries(SOUND_PATHS).forEach(([key, path]) => {
+      const volume = key === 'gachaRoll' ? 0.5 : key === 'serifAppear' ? 0.4 : 0.7;
       this.sounds.set(key as SoundKey, new Howl({
         src: [path],
         preload: true,
-        volume: key === 'gachaRoll' ? 0.5 : 0.7,
+        volume,
       }));
     });
 

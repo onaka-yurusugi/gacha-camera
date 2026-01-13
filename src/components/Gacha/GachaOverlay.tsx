@@ -133,13 +133,18 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
           )}
         </AnimatePresence>
 
-        {/* White flash */}
+        {/* Flash - SSRは虹色、それ以外は白 */}
         {phase === 'flash' && (
           <motion.div
-            className="absolute inset-0 bg-white z-50"
+            className="absolute inset-0 z-50"
+            style={{
+              background: isSSR
+                ? 'linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff, #ff0000)'
+                : 'white',
+            }}
             initial={{ opacity: 1 }}
             animate={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: isSSR ? 0.25 : 0.15 }}
           />
         )}
 
