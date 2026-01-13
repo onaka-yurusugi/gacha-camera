@@ -7,6 +7,7 @@ import { Rarity, RARITY_CONFIG } from '@/types/gacha';
 interface RainbowEffectProps {
   rarity: Rarity;
   isVisible: boolean;
+  isSubdued?: boolean; // 控えめモード（結果表示時）
 }
 
 interface ParticlePosition {
@@ -15,7 +16,7 @@ interface ParticlePosition {
   delay: number;
 }
 
-export const RainbowEffect = ({ rarity, isVisible }: RainbowEffectProps) => {
+export const RainbowEffect = ({ rarity, isVisible, isSubdued = false }: RainbowEffectProps) => {
   const config = RARITY_CONFIG[rarity];
   const isSSR = rarity === 'SSR';
 
@@ -31,15 +32,18 @@ export const RainbowEffect = ({ rarity, isVisible }: RainbowEffectProps) => {
 
   if (!isVisible) return null;
 
+  // 控えめモードの時の透明度調整
+  const subduedMultiplier = isSubdued ? 0.3 : 1;
+
   return (
     <motion.div
       className="fixed inset-0 pointer-events-none z-10"
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      animate={{ opacity: isSubdued ? 0.4 : 1 }}
+      transition={{ duration: isSubdued ? 0.5 : 0.3 }}
     >
-      {/* SSR Screen shake */}
-      {isSSR && (
+      {/* SSR Screen shake - 控えめ時は無効 */}
+      {isSSR && !isSubdued && (
         <motion.div
           className="absolute inset-0"
           animate={{
@@ -62,17 +66,20 @@ export const RainbowEffect = ({ rarity, isVisible }: RainbowEffectProps) => {
             background: 'radial-gradient(ellipse at center, transparent 30%, rgba(255, 215, 0, 0.2) 100%)',
           }}
           animate={{
-            opacity: [0.3, 0.6, 0.3],
+            opacity: isSubdued ? [0.1, 0.2, 0.1] : [0.3, 0.6, 0.3],
           }}
           transition={{ duration: 1.5, repeat: Infinity }}
         />
       )}
 
-      {/* Radial gradient overlay - Enhanced for SSR */}
+      {/* Radial gradient overlay */}
       <motion.div
         className={`absolute inset-0 bg-gradient-radial ${config.glowColor}`}
         initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: isSSR ? 2 : 1.5, opacity: isSSR ? 0.8 : 0.6 }}
+        animate={{
+          scale: isSSR ? 2 : 1.5,
+          opacity: (isSSR ? 0.8 : 0.6) * subduedMultiplier
+        }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
         style={{
           background: isSSR
@@ -85,7 +92,7 @@ export const RainbowEffect = ({ rarity, isVisible }: RainbowEffectProps) => {
         }}
       />
 
-      {/* SSR Rainbow border (static, not rotating) */}
+      {/* SSR Rainbow border */}
       {isSSR && (
         <motion.div
           className="absolute inset-4 rounded-lg pointer-events-none"
@@ -94,7 +101,7 @@ export const RainbowEffect = ({ rarity, isVisible }: RainbowEffectProps) => {
             padding: '3px',
           }}
           animate={{
-            opacity: [0.6, 1, 0.6],
+            opacity: isSubdued ? [0.2, 0.3, 0.2] : [0.6, 1, 0.6],
           }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         >
@@ -102,8 +109,8 @@ export const RainbowEffect = ({ rarity, isVisible }: RainbowEffectProps) => {
         </motion.div>
       )}
 
-      {/* Sparkles - More and bigger for SSR */}
-      {(isSSR || rarity === 'SR' || rarity === 'R') && (
+      {/* Sparkles - 控えめ時は非表示 */}
+      {(isSSR || rarity === 'SR' || rarity === 'R') && !isSubdued && (
         <>
           {sparklePositions.map((pos, i) => (
             <motion.div
@@ -132,8 +139,8 @@ export const RainbowEffect = ({ rarity, isVisible }: RainbowEffectProps) => {
         </>
       )}
 
-      {/* SSR Floating orbs */}
-      {isSSR && (
+      {/* SSR Floating orbs - 控えめ時は非表示 */}
+      {isSSR && !isSubdued && (
         <>
           {[...Array(8)].map((_, i) => (
             <motion.div
@@ -161,7 +168,7 @@ export const RainbowEffect = ({ rarity, isVisible }: RainbowEffectProps) => {
         </>
       )}
 
-      {/* SSR Corner flares */}
+      {/* SSR Corner flares - 控えめ時は薄く */}
       {isSSR && (
         <>
           {['top-0 left-0', 'top-0 right-0', 'bottom-0 left-0', 'bottom-0 right-0'].map((pos, i) => (
@@ -169,10 +176,10 @@ export const RainbowEffect = ({ rarity, isVisible }: RainbowEffectProps) => {
               key={`flare-${i}`}
               className={`absolute ${pos} w-32 h-32`}
               style={{
-                background: `radial-gradient(circle at ${i % 2 === 0 ? '0%' : '100%'} ${i < 2 ? '0%' : '100%'}, rgba(255, 215, 0, 0.6) 0%, transparent 70%)`,
+                background: `radial-gradient(circle at ${i % 2 === 0 ? '0%' : '100%'} ${i < 2 ? '0%' : '100%'}, rgba(255, 215, 0, ${isSubdued ? 0.2 : 0.6}) 0%, transparent 70%)`,
               }}
               animate={{
-                opacity: [0.3, 0.8, 0.3],
+                opacity: isSubdued ? [0.1, 0.3, 0.1] : [0.3, 0.8, 0.3],
                 scale: [1, 1.2, 1],
               }}
               transition={{

@@ -1,112 +1,162 @@
 # Gacha Camera
 
-Turn your camera into a gacha game.
+カメラをガチャゲームに変えるWebアプリ。
 
-[Demo](https://gacha-camera.vercel.app) | [日本語](./README.ja.md)
+[Demo](https://gacha-camera.vercel.app)
 
-## Features
+## 特徴
 
-- Real-time camera feed with gacha overlay
-- SSR/SR/R/N rarity system with different effects
-- Sound effects & smooth animations
-- Works on mobile browsers (iOS Safari / Android Chrome)
-- Front/back camera switching
+- リアルタイムカメラ映像にガチャ演出をオーバーレイ
+- SSR/SR/R/N のレアリティシステム
+- 豪華な召喚演出（扉・クリスタル破砕・虹色フラッシュ）
+- 効果音＆スムーズなアニメーション
+- モバイルブラウザ対応（iOS Safari / Android Chrome）
+- フロント/バックカメラ切り替え
 
-## Quick Start
+## クイックスタート
 
 ```bash
-# Clone the repository
+# リポジトリをクローン
 git clone https://github.com/onaka-yurusugi/gacha-camera.git
 cd gacha-camera
 
-# Install dependencies
+# 依存関係をインストール
 npm install
 
-# Start development server
+# 開発サーバーを起動
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください。
 
-## How to Use
+## 使い方
 
-1. Allow camera access when prompted
-2. Tap anywhere on the screen
-3. Watch the gacha animation
-4. Get your character!
+1. カメラへのアクセスを許可
+2. 画面のどこかをタップ
+3. ガチャ演出を楽しむ
+4. キャラクターをゲット！
 
-## Tech Stack
+## 技術スタック
 
-| Category | Technology | Notes |
-|----------|------------|-------|
-| Framework | Next.js 14+ (App Router) | Vercel optimized |
-| Language | TypeScript | Type safety |
-| Styling | Tailwind CSS | Utility-first |
-| Animation | Framer Motion | Declarative animations |
-| Sound | Howler.js | Cross-browser support |
-| Camera | MediaDevices API | Standard Web API |
+| カテゴリ | 技術 | 備考 |
+|----------|------|------|
+| フレームワーク | Next.js 16 (App Router) | Vercel最適化 |
+| 言語 | TypeScript | 型安全 |
+| スタイリング | Tailwind CSS | ユーティリティファースト |
+| アニメーション | Framer Motion | 宣言的アニメーション |
+| サウンド | Howler.js | クロスブラウザ対応 |
+| カメラ | MediaDevices API | 標準Web API |
 
-## Rarity System
+## レアリティシステム
 
-| Rarity | Rate | Effect Color |
-|--------|------|--------------|
-| SSR | 3% | Rainbow |
-| SR | 12% | Gold |
-| R | 35% | Blue |
-| N | 50% | White |
+| レアリティ | 確率 | エフェクト |
+|------------|------|------------|
+| SSR | 3% | 虹色フラッシュ・画面揺れ・爆発エフェクト |
+| SR | 12% | ゴールド |
+| R | 35% | ブルー |
+| N | 50% | ホワイト |
 
-## Project Structure
+## 演出フロー
+
+```
+[待機状態]
+  扉＋クリスタル表示（脈動アニメーション）
+       ↓ タップ
+[破砕フェーズ] 500ms
+  クリスタル発光 → 破砕 → 光の粒子飛散
+  ※背景エフェクト開始
+       ↓
+[フラッシュ] 150ms（SSR: 250ms 虹色）
+       ↓
+[SSR爆発] 800ms（SSRのみ）
+  画面揺れ・金色オーラ・パーティクル
+       ↓
+[エフェクト] 600ms
+  レアリティに応じた背景エフェクト
+       ↓
+[セリフ] 900ms × セリフ数 + 300ms
+  中央にカットイン表示（SE付き）
+  ※表示後も残る
+       ↓
+[レアリティ] 1000ms
+  バッジ表示
+  ※表示後も残る
+       ↓
+[名前ドカン！] 1200ms
+  ズームイン＋震動
+       ↓
+[フェードアウト] 500ms
+```
+
+## プロジェクト構成
 
 ```
 src/
 ├── app/                    # Next.js App Router
 ├── components/
-│   ├── Camera/            # Camera components
-│   ├── Gacha/             # Gacha effect components
-│   └── UI/                # UI components
-├── hooks/                 # Custom hooks
-├── lib/                   # Utilities & data
-└── types/                 # TypeScript types
+│   ├── Camera/            # カメラコンポーネント
+│   ├── Gacha/             # ガチャ演出コンポーネント
+│   │   ├── GachaOverlay.tsx      # 演出オーケストレーション
+│   │   ├── SummonGate.tsx        # 召喚扉＋クリスタル
+│   │   ├── CrystalShatter.tsx    # クリスタル破砕
+│   │   ├── SSRExplosion.tsx      # SSR専用爆発
+│   │   ├── RainbowEffect.tsx     # 背景エフェクト
+│   │   ├── SerifDisplay.tsx      # セリフ表示
+│   │   ├── RarityBadge.tsx       # レアリティバッジ
+│   │   └── NameReveal.tsx        # 名前ドカン表示
+│   └── UI/                # UIコンポーネント
+├── hooks/                 # カスタムフック
+│   ├── useCamera.ts       # カメラ制御
+│   └── useGacha.ts        # ガチャロジック
+├── lib/                   # ユーティリティ
+│   ├── gachaData.ts       # キャラクターデータ
+│   └── sounds.ts          # サウンドマネージャー
+└── types/                 # TypeScript型定義
+    └── gacha.ts           # レアリティ・キャラクター型
 ```
 
-## Contributing
+## キャラクター追加方法
 
-We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+`src/lib/gachaData.ts` を編集：
 
-### Easy ways to contribute
+```typescript
+{
+  id: 'new-character',
+  name: 'キャラクター名',
+  rarity: 'SSR', // SSR | SR | R | N
+  serifs: [
+    'セリフ1',
+    'セリフ2',
+  ],
+}
+```
 
-- **Add new characters** - Edit `src/lib/gachaData.ts` and submit a PR
-- **Improve animations** - Enhance the gacha effects
-- **Add translations** - Help with i18n
-- **Report bugs** - Open an issue
-
-## Development
+## 開発コマンド
 
 ```bash
-# Run development server
+# 開発サーバー起動
 npm run dev
 
-# Build for production
+# 本番ビルド
 npm run build
 
-# Run linter
+# リンター実行
 npm run lint
 ```
 
-## Deployment
+## デプロイ
 
-This project is optimized for [Vercel](https://vercel.com):
+[Vercel](https://vercel.com) に最適化されています：
 
 ```bash
-# Deploy to Vercel
 vercel
 ```
 
-## License
+## ライセンス
 
 [MIT](./LICENSE)
 
-## Acknowledgments
+## 謝辞
 
-- Sound effects from [効果音ラボ](https://soundeffect-lab.info/) (placeholder)
-- Inspired by mobile gacha games
+- 効果音: [効果音ラボ](https://soundeffect-lab.info/)（仮）
+- モバイルガチャゲームにインスパイア

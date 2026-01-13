@@ -26,6 +26,7 @@ type AnimationPhase =
   | 'serif'
   | 'rarity'
   | 'name'
+  | 'result'
   | 'fadeout';
 
 const BASE_PHASE_TIMINGS = {
@@ -36,6 +37,7 @@ const BASE_PHASE_TIMINGS = {
   effect: 600,       // 背景エフェクト
   rarity: 1000,      // レアリティバッジ
   name: 1200,        // 名前ドカン表示
+  result: 2000,      // 結果表示（顔が見える余韻）
   fadeout: 500,
 } as const;
 
@@ -92,6 +94,10 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
       soundManager.play('cutin');
       await delay(BASE_PHASE_TIMINGS.name);
 
+      // Result (余韻：顔と名前が見える時間)
+      setPhase('result');
+      await delay(BASE_PHASE_TIMINGS.result);
+
       // Fadeout
       setPhase('fadeout');
       await delay(BASE_PHASE_TIMINGS.fadeout);
@@ -111,7 +117,7 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
   // shatterフェーズから背景エフェクトを表示（扉が開く時から演出開始）
   const showEffect = !['idle', 'flash'].includes(phase);
   // セリフ・レアリティ・名前は一度表示したら消えない
-  const phaseOrder = ['idle', 'shatter', 'flash', 'ssrExplosion', 'effect', 'serif', 'rarity', 'name', 'fadeout'];
+  const phaseOrder = ['idle', 'shatter', 'flash', 'ssrExplosion', 'effect', 'serif', 'rarity', 'name', 'result', 'fadeout'];
   const currentPhaseIndex = phaseOrder.indexOf(phase);
   const showSerif = currentPhaseIndex >= phaseOrder.indexOf('serif') && phase !== 'fadeout';
   const showRarity = currentPhaseIndex >= phaseOrder.indexOf('rarity') && phase !== 'fadeout';
@@ -156,8 +162,8 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
           )}
         </AnimatePresence>
 
-        {/* Rainbow/Gold/Blue effect */}
-        <RainbowEffect rarity={rarity} isVisible={showEffect} />
+        {/* Rainbow/Gold/Blue effect - resultフェーズは控えめに */}
+        <RainbowEffect rarity={rarity} isVisible={showEffect} isSubdued={phase === 'result'} />
 
         {/* Main content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
