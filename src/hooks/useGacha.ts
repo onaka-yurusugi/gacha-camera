@@ -1,13 +1,24 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { GachaCharacter, GachaResult, Rarity, RARITY_CONFIG } from '@/types/gacha';
+import {
+  GachaCharacter,
+  GachaResult,
+  Rarity,
+  RARITY_CONFIG,
+  CustomGachaSettings,
+} from '@/types/gacha';
 import { characters, getCharactersByRarity } from '@/lib/gachaData';
+
+interface PullOptions {
+  useCustom?: boolean;
+  customSettings?: CustomGachaSettings;
+}
 
 interface UseGachaReturn {
   result: GachaResult | null;
   isPlaying: boolean;
-  pull: () => void;
+  pull: (options?: PullOptions) => void;
   reset: () => void;
 }
 
@@ -41,13 +52,26 @@ export const useGacha = (): UseGachaReturn => {
   const [result, setResult] = useState<GachaResult | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const pull = useCallback(() => {
+  const pull = useCallback((options?: PullOptions) => {
     if (isPlaying) return;
 
     setIsPlaying(true);
 
-    const rarity = determineRarity();
-    const character = selectCharacter(rarity);
+    let character: GachaCharacter;
+
+    if (options?.useCustom && options.customSettings) {
+      // カスタムモード: 設定からキャラクターを生成
+      character = {
+        id: 'custom',
+        name: options.customSettings.name,
+        rarity: options.customSettings.rarity,
+        serif: options.customSettings.serif,
+      };
+    } else {
+      // ランダムモード: 既存ロジック
+      const rarity = determineRarity();
+      character = selectCharacter(rarity);
+    }
 
     setResult({
       character,

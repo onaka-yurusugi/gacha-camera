@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 interface HeaderProps {
   onCameraSwitch: () => void;
   onMuteToggle: () => void;
+  onSettingsOpen: () => void;
   isMuted: boolean;
   isVisible: boolean;
 }
@@ -12,6 +13,7 @@ interface HeaderProps {
 export const Header = ({
   onCameraSwitch,
   onMuteToggle,
+  onSettingsOpen,
   isMuted,
   isVisible,
 }: HeaderProps) => {
@@ -42,22 +44,41 @@ export const Header = ({
           🔄
         </motion.button>
 
-        {/* Sound toggle button */}
-        <motion.button
-          className="
-            p-3 rounded-full
-            bg-black/30 backdrop-blur-sm
-            border border-white/20
-            text-white text-xl
-            active:scale-95
-            transition-transform
-          "
-          onClick={onMuteToggle}
-          whileTap={{ scale: 0.9 }}
-          aria-label={isMuted ? '音声オン' : '音声オフ'}
-        >
-          {isMuted ? '🔇' : '🔊'}
-        </motion.button>
+        <div className="flex gap-2">
+          {/* Settings button */}
+          <motion.button
+            className="
+              p-3 rounded-full
+              bg-black/30 backdrop-blur-sm
+              border border-white/20
+              text-white text-xl
+              active:scale-95
+              transition-transform
+            "
+            onClick={onSettingsOpen}
+            whileTap={{ scale: 0.9 }}
+            aria-label="設定"
+          >
+            ⚙️
+          </motion.button>
+
+          {/* Sound toggle button */}
+          <motion.button
+            className="
+              p-3 rounded-full
+              bg-black/30 backdrop-blur-sm
+              border border-white/20
+              text-white text-xl
+              active:scale-95
+              transition-transform
+            "
+            onClick={onMuteToggle}
+            whileTap={{ scale: 0.9 }}
+            aria-label={isMuted ? '音声オン' : '音声オフ'}
+          >
+            {isMuted ? '🔇' : '🔊'}
+          </motion.button>
+        </div>
       </div>
     </motion.header>
   );

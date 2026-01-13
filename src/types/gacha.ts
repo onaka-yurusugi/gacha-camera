@@ -20,6 +20,31 @@ export interface RarityConfig {
   label: string;
 }
 
+// Gacha Mode Types
+export type GachaMode = 'random' | 'custom';
+
+export interface CustomGachaSettings {
+  rarity: Rarity;
+  name: string;
+  serif: string;
+}
+
+export interface GachaSettings {
+  mode: GachaMode;
+  customSettings: CustomGachaSettings;
+}
+
+export const DEFAULT_CUSTOM_SETTINGS: CustomGachaSettings = {
+  rarity: 'SSR',
+  name: '',
+  serif: '',
+};
+
+export const DEFAULT_GACHA_SETTINGS: GachaSettings = {
+  mode: 'random',
+  customSettings: DEFAULT_CUSTOM_SETTINGS,
+};
+
 export const RARITY_CONFIG: Record<Rarity, RarityConfig> = {
   SSR: {
     rate: 0.03,
