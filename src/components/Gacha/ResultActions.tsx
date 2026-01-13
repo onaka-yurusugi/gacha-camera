@@ -123,30 +123,10 @@ export const ResultActions = ({ result, onRetry, isVisible }: ResultActionsProps
   // Web Share API対応チェック
   const canShare = typeof navigator !== 'undefined' && 'share' in navigator && 'canShare' in navigator;
 
-  // 画像付きシェア（Web Share API）
+  // テキスト+URLシェア（Web Share API）
+  // 注: filesとtext/urlを同時に渡すとtextが無視されるプラットフォームが多いため、テキストのみシェア
   const handleShare = useCallback(async () => {
-    const blob = await captureScreen();
-
-    if (blob && canShare) {
-      const file = new File([blob], 'gacha-result.png', { type: 'image/png' });
-      const shareData = {
-        title: '虹演出カメラ',
-        text: shareText,
-        url: shareUrl,
-        files: [file],
-      };
-
-      try {
-        // ファイル付きシェアが可能かチェック
-        if (navigator.canShare(shareData)) {
-          await navigator.share(shareData);
-          return;
-        }
-      } catch (error) {
-        console.error('Share with image failed:', error);
-      }
-
-      // ファイル無しでシェア
+    if (canShare) {
       try {
         await navigator.share({
           title: '虹演出カメラ',
@@ -154,13 +134,18 @@ export const ResultActions = ({ result, onRetry, isVisible }: ResultActionsProps
           url: shareUrl,
         });
       } catch (error) {
-        console.error('Share failed:', error);
+        // ユーザーがキャンセルした場合は無視
+        if (error instanceof Error && error.name !== 'AbortError') {
+          console.error('Share failed:', error);
+          // エラー時はX（Twitter）にフォールバック
+          handleShareX();
+        }
       }
     } else {
       // Web Share API非対応の場合はX（Twitter）にフォールバック
       handleShareX();
     }
-  }, [captureScreen, canShare, shareText, shareUrl]);
+  }, [canShare, shareText, shareUrl]);
 
   // X（Twitter）共有（フォールバック）
   const handleShareX = useCallback(() => {
@@ -207,24 +192,15 @@ export const ResultActions = ({ result, onRetry, isVisible }: ResultActionsProps
         {/* メインシェアボタン（Web Share API / X fallback） */}
         <motion.button
           onClick={handleShare}
-          disabled={isCapturing}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full shadow-lg disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full shadow-lg"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          {isCapturing ? (
-            <motion.div
-              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-            />
-          ) : (
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-              <polyline points="16 6 12 2 8 6" />
-              <line x1="12" y1="2" x2="12" y2="15" />
-            </svg>
-          )}
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+            <polyline points="16 6 12 2 8 6" />
+            <line x1="12" y1="2" x2="12" y2="15" />
+          </svg>
           <span className="text-sm font-bold">シェア</span>
         </motion.button>
       </div>
