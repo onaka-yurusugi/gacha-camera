@@ -31,18 +31,18 @@ type AnimationPhase =
 
 const BASE_PHASE_TIMINGS = {
   idle: 0,
-  shatter: 600,
+  shatter: 500,      // クリスタル破砕（少し短縮）
   flash: 150,
-  rolling: 600,
+  rolling: 400,      // ローリング（短縮：600→400）
   ssrExplosion: 800,
-  effect: 1200,
-  rarity: 1000,  // レアリティバッジ
-  name: 1500,    // 名前ドカン表示
+  effect: 600,       // 背景エフェクト（大幅短縮：1200→600）
+  rarity: 1000,      // レアリティバッジ
+  name: 1200,        // 名前ドカン表示
   fadeout: 500,
 } as const;
 
-// セリフ表示時間を動的に計算（セリフ数 × 700ms + 少しの余裕 300ms）
-const SERIF_TIME_PER_LINE = 700;
+// セリフ表示時間を動的に計算（セリフ数 × 900ms + 余裕 300ms）
+const SERIF_TIME_PER_LINE = 900;
 const SERIF_BUFFER = 300;
 const calculateSerifTime = (serifCount: number): number =>
   serifCount * SERIF_TIME_PER_LINE + SERIF_BUFFER;
@@ -115,9 +115,12 @@ export const GachaOverlay = ({ isActive, result, onComplete }: GachaOverlayProps
   const showShatter = phase === 'shatter';
   const showSSRExplosion = phase === 'ssrExplosion' && isSSR;
   const showEffect = !['idle', 'shatter', 'flash', 'rolling'].includes(phase);
-  const showSerif = phase === 'serif'; // セリフのみ
-  const showRarity = phase === 'rarity'; // レアリティバッジ
-  const showName = phase === 'name'; // 名前ドカン
+  // セリフ・レアリティ・名前は一度表示したら消えない
+  const phaseOrder = ['idle', 'shatter', 'flash', 'rolling', 'ssrExplosion', 'effect', 'serif', 'rarity', 'name', 'fadeout'];
+  const currentPhaseIndex = phaseOrder.indexOf(phase);
+  const showSerif = currentPhaseIndex >= phaseOrder.indexOf('serif') && phase !== 'fadeout';
+  const showRarity = currentPhaseIndex >= phaseOrder.indexOf('rarity') && phase !== 'fadeout';
+  const showName = currentPhaseIndex >= phaseOrder.indexOf('name') && phase !== 'fadeout';
 
   return (
     <AnimatePresence>

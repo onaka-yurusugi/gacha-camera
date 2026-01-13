@@ -23,7 +23,7 @@ const getAccentColor = (rarity: Rarity): string => {
   }
 };
 
-const SERIF_DISPLAY_TIME = 700; // 各セリフの表示時間(ms)
+const SERIF_DISPLAY_TIME = 900; // 各セリフの表示時間(ms)
 
 export const SerifDisplay = ({ serifs, rarity, isVisible }: SerifDisplayProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -50,7 +50,7 @@ export const SerifDisplay = ({ serifs, rarity, isVisible }: SerifDisplayProps) =
 
   return (
     <motion.div
-      className="fixed inset-0 z-20 flex flex-col items-center justify-end pb-48 overflow-hidden"
+      className="fixed inset-0 z-20 flex flex-col items-center justify-center overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

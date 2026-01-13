@@ -85,110 +85,20 @@ export const RainbowEffect = ({ rarity, isVisible }: RainbowEffectProps) => {
         }}
       />
 
-      {/* SSR Rainbow rotating border */}
+      {/* SSR Rainbow border (static, not rotating) */}
       {isSSR && (
         <motion.div
-          className="absolute inset-4 rounded-lg"
+          className="absolute inset-4 rounded-lg pointer-events-none"
           style={{
             background: 'linear-gradient(45deg, red, orange, yellow, green, blue, purple, red)',
             padding: '3px',
           }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+          animate={{
+            opacity: [0.6, 1, 0.6],
+          }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <div className="absolute inset-[3px] bg-black/20 rounded-lg" />
-        </motion.div>
-      )}
-
-      {/* Animated particles - More for SSR */}
-      {isSSR && (
-        <>
-          {[...Array(30)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                width: 4 + Math.random() * 4,
-                height: 4 + Math.random() * 4,
-                background: `hsl(${(i * 12) % 360}, 100%, 70%)`,
-                boxShadow: `0 0 10px hsl(${(i * 12) % 360}, 100%, 70%)`,
-                left: `${50 + Math.cos((i * Math.PI * 2) / 30) * (30 + Math.random() * 20)}%`,
-                top: `${50 + Math.sin((i * Math.PI * 2) / 30) * (30 + Math.random() * 20)}%`,
-              }}
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{
-                scale: [0, 2, 0],
-                opacity: [0, 1, 0],
-              }}
-              transition={{
-                duration: 1.2,
-                delay: i * 0.04,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-            />
-          ))}
-        </>
-      )}
-
-      {/* Light rays for SSR/SR - Enhanced for SSR */}
-      {(isSSR || rarity === 'SR') && (
-        <motion.div
-          className="absolute inset-0"
-          initial={{ rotate: 0 }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: isSSR ? 5 : 8, repeat: Infinity, ease: 'linear' }}
-        >
-          {[...Array(isSSR ? 16 : 12)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute left-1/2 top-1/2"
-              style={{
-                width: isSSR ? 3 : 1,
-                height: '150vh',
-                transform: `translate(-50%, -50%) rotate(${i * (isSSR ? 22.5 : 30)}deg)`,
-                background: isSSR
-                  ? `linear-gradient(to bottom, transparent 20%, hsl(${i * 22.5}, 100%, 70%) 50%, transparent 80%)`
-                  : 'linear-gradient(to bottom, transparent, rgba(255,215,0,0.5), transparent)',
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: isSSR ? [0.4, 0.8, 0.4] : [0.3, 0.6, 0.3] }}
-              transition={{
-                duration: isSSR ? 0.6 : 1,
-                delay: i * 0.05,
-                repeat: Infinity,
-              }}
-            />
-          ))}
-        </motion.div>
-      )}
-
-      {/* SSR Outer rotating rays */}
-      {isSSR && (
-        <motion.div
-          className="absolute inset-0"
-          initial={{ rotate: 0 }}
-          animate={{ rotate: -360 }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-        >
-          {[...Array(8)].map((_, i) => (
-            <motion.div
-              key={`outer-ray-${i}`}
-              className="absolute left-1/2 top-1/2"
-              style={{
-                width: 6,
-                height: '200vh',
-                transform: `translate(-50%, -50%) rotate(${i * 45}deg)`,
-                background: `linear-gradient(to bottom, transparent 30%, rgba(255, 215, 0, 0.3) 50%, transparent 70%)`,
-              }}
-              animate={{ opacity: [0.2, 0.5, 0.2] }}
-              transition={{
-                duration: 1.5,
-                delay: i * 0.2,
-                repeat: Infinity,
-              }}
-            />
-          ))}
+          <div className="absolute inset-[3px] bg-transparent rounded-lg" />
         </motion.div>
       )}
 
