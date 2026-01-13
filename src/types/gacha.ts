@@ -39,8 +39,8 @@ export interface GachaSettings {
 
 export const DEFAULT_CUSTOM_SETTINGS: CustomGachaSettings = {
   rarity: 'SSR',
-  name: '',
-  serifs: [''],
+  name: 'サンプル侍',
+  serifs: ['拙者、見本でござる', 'お主も設定するでござるよ'],
 };
 
 export const DEFAULT_GACHA_SETTINGS: GachaSettings = {
