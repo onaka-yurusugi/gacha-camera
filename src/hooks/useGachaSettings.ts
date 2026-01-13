@@ -6,6 +6,7 @@ import {
   GachaMode,
   CustomGachaSettings,
   DEFAULT_GACHA_SETTINGS,
+  DEFAULT_CUSTOM_SETTINGS,
   Rarity,
 } from '@/types/gacha';
 
@@ -56,6 +57,15 @@ const markFirstLaunchComplete = (): void => {
   localStorage.setItem(FIRST_LAUNCH_KEY, 'done');
 };
 
+// 設定がデフォルトから変更されているかチェック（名前またはセリフ）
+const isSettingsCustomized = (custom: CustomGachaSettings): boolean => {
+  const nameChanged = custom.name !== DEFAULT_CUSTOM_SETTINGS.name;
+  const serifsChanged =
+    custom.serifs.length !== DEFAULT_CUSTOM_SETTINGS.serifs.length ||
+    custom.serifs.some((s, i) => s !== DEFAULT_CUSTOM_SETTINGS.serifs[i]);
+  return nameChanged || serifsChanged;
+};
+
 interface UseGachaSettingsReturn {
   settings: GachaSettings;
   setMode: (mode: GachaMode) => void;
@@ -70,11 +80,17 @@ interface UseGachaSettingsReturn {
   isValidCustomSettings: boolean;
   isFirstLaunch: boolean;
   completeFirstLaunch: () => void;
+  showWelcome: boolean;
+  showCoachMark: boolean;
+  completeWelcome: () => void;
+  completeCoachMark: () => void;
 }
 
 export const useGachaSettings = (): UseGachaSettingsReturn => {
   const [settings, setSettings] = useState<GachaSettings>(getInitialSettings);
   const [isFirstLaunch, setIsFirstLaunch] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showCoachMark, setShowCoachMark] = useState(false);
 
   // Hydrationをトラッキング（useSyncExternalStoreパターン）
   const isHydrated = useSyncExternalStore(
@@ -83,16 +99,34 @@ export const useGachaSettings = (): UseGachaSettingsReturn => {
     () => false
   );
 
-  // 初回起動チェック（hydration後に実行）
+  // 設定がデフォルトのままならウェルカムモーダルを表示
   useEffect(() => {
     if (!isHydrated) return;
     setIsFirstLaunch(checkIsFirstLaunch());
-  }, [isHydrated]);
+
+    if (!isSettingsCustomized(settings.customSettings)) {
+      setShowWelcome(true);
+    }
+  }, [isHydrated, settings.customSettings]);
 
   // 初回起動完了をマークする関数
   const completeFirstLaunch = useCallback(() => {
     markFirstLaunchComplete();
     setIsFirstLaunch(false);
+  }, []);
+
+  // ウェルカムモーダル完了（コーチマークへ移行）
+  const completeWelcome = useCallback(() => {
+    setShowWelcome(false);
+    // 設定がまだカスタマイズされてなければコーチマーク表示
+    if (!isSettingsCustomized(settings.customSettings)) {
+      setShowCoachMark(true);
+    }
+  }, [settings.customSettings]);
+
+  // コーチマーク一時非表示（設定変更されるまで次回も表示）
+  const completeCoachMark = useCallback(() => {
+    setShowCoachMark(false);
   }, []);
 
   // LocalStorageへ保存
@@ -147,5 +181,9 @@ export const useGachaSettings = (): UseGachaSettingsReturn => {
     isValidCustomSettings,
     isFirstLaunch,
     completeFirstLaunch,
+    showWelcome,
+    showCoachMark,
+    completeWelcome,
+    completeCoachMark,
   };
 };

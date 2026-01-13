@@ -7,6 +7,8 @@ import { GachaOverlay } from '@/components/Gacha/GachaOverlay';
 import { SummonGate } from '@/components/Gacha/SummonGate';
 import { Header } from '@/components/UI/Header';
 import { SettingsModal } from '@/components/UI/SettingsModal';
+import { WelcomeModal } from '@/components/UI/WelcomeModal';
+import { CoachMark } from '@/components/UI/CoachMark';
 import { useCamera } from '@/hooks/useCamera';
 import { useGacha } from '@/hooks/useGacha';
 import { useGachaSettings } from '@/hooks/useGachaSettings';
@@ -23,8 +25,10 @@ export default function Home() {
     setSerifs,
     isCustomMode,
     isValidCustomSettings,
-    isFirstLaunch,
-    completeFirstLaunch,
+    showWelcome,
+    showCoachMark,
+    completeWelcome,
+    completeCoachMark,
   } = useGachaSettings();
   const [isMuted, setIsMuted] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -37,12 +41,6 @@ export default function Home() {
     }
   }, [isInitialized]);
 
-  // 初回起動時に設定画面を自動オープン
-  useEffect(() => {
-    if (isFirstLaunch) {
-      setIsSettingsOpen(true);
-    }
-  }, [isFirstLaunch]);
 
   const handleTap = useCallback(() => {
     if (!isPlaying && isReady) {
@@ -91,11 +89,7 @@ export default function Home() {
 
   const handleSettingsClose = useCallback(() => {
     setIsSettingsOpen(false);
-    // 初回起動時なら完了フラグをセット
-    if (isFirstLaunch) {
-      completeFirstLaunch();
-    }
-  }, [isFirstLaunch, completeFirstLaunch]);
+  }, []);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
@@ -138,6 +132,12 @@ export default function Home() {
         onNameChange={setName}
         onSerifsChange={setSerifs}
       />
+
+      {/* Tutorial: Welcome Modal */}
+      <WelcomeModal isOpen={showWelcome} onComplete={completeWelcome} />
+
+      {/* Tutorial: Coach Mark for Settings Button */}
+      <CoachMark isVisible={showCoachMark} onDismiss={completeCoachMark} />
     </main>
   );
 }
