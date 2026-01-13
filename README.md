@@ -3,7 +3,7 @@
 カメラをガチャゲームに変えるWebアプリ。
 
 [Demo](https://gacha-camera.vercel.app)
-
+https://x.com/onaka_yuruyuri/status/2011070418833326289
 ## 特徴
 
 - リアルタイムカメラ映像にガチャ演出をオーバーレイ
