@@ -1,9 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Rarity, RARITY_CONFIG } from '@/types/gacha';
-
-type DisplayMode = 'cutin' | 'result';
+import {
+  Rarity,
+  DisplayMode,
+  RARITY_CONFIG,
+  getRarityEmoji,
+  getRarityGlowColor,
+} from '@/types/gacha';
 
 interface RarityBadgeProps {
   rarity: Rarity;
@@ -11,36 +15,10 @@ interface RarityBadgeProps {
   mode?: DisplayMode;
 }
 
-const getRarityEmoji = (rarity: Rarity): string => {
-  switch (rarity) {
-    case 'SSR':
-      return '🌈';
-    case 'SR':
-      return '✨';
-    case 'R':
-      return '💎';
-    case 'N':
-      return '⚪';
-  }
-};
-
-const getGlowColor = (rarity: Rarity): string => {
-  switch (rarity) {
-    case 'SSR':
-      return 'rgba(255, 215, 0, 0.8)';
-    case 'SR':
-      return 'rgba(255, 200, 0, 0.6)';
-    case 'R':
-      return 'rgba(59, 130, 246, 0.6)';
-    default:
-      return 'rgba(255, 255, 255, 0.4)';
-  }
-};
-
 export const RarityBadge = ({ rarity, isVisible, mode = 'cutin' }: RarityBadgeProps) => {
   const config = RARITY_CONFIG[rarity];
   const emoji = getRarityEmoji(rarity);
-  const glowColor = getGlowColor(rarity);
+  const glowColor = getRarityGlowColor(rarity);
   const isSSR = rarity === 'SSR';
   const isHighRarity = rarity === 'SSR' || rarity === 'SR';
 

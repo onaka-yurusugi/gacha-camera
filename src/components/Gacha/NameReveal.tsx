@@ -1,9 +1,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Rarity } from '@/types/gacha';
-
-type DisplayMode = 'cutin' | 'result';
+import {
+  Rarity,
+  DisplayMode,
+  getRarityNameColor,
+  getRarityBorderColor,
+  getRarityGlowColor,
+  getRarityAccentGradient,
+} from '@/types/gacha';
 
 interface NameRevealProps {
   name: string;
@@ -12,52 +17,14 @@ interface NameRevealProps {
   mode?: DisplayMode;
 }
 
-const getNameColor = (rarity: Rarity): string => {
-  switch (rarity) {
-    case 'SSR':
-      return 'bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-400 bg-clip-text text-transparent';
-    case 'SR':
-      return 'text-yellow-400';
-    case 'R':
-      return 'text-blue-400';
-    default:
-      return 'text-white';
-  }
-};
-
-const getBorderColor = (rarity: Rarity): string => {
-  switch (rarity) {
-    case 'SSR':
-      return 'border-yellow-400';
-    case 'SR':
-      return 'border-yellow-500';
-    case 'R':
-      return 'border-blue-400';
-    default:
-      return 'border-white/50';
-  }
-};
-
-const getGlowColor = (rarity: Rarity): string => {
-  switch (rarity) {
-    case 'SSR':
-      return 'rgba(255, 215, 0, 0.8)';
-    case 'SR':
-      return 'rgba(255, 200, 0, 0.5)';
-    case 'R':
-      return 'rgba(59, 130, 246, 0.5)';
-    default:
-      return 'rgba(255, 255, 255, 0.3)';
-  }
-};
-
 export const NameReveal = ({ name, rarity, isVisible, mode = 'cutin' }: NameRevealProps) => {
   if (!isVisible) return null;
 
   const isSSR = rarity === 'SSR';
-  const nameColor = getNameColor(rarity);
-  const borderColor = getBorderColor(rarity);
-  const glowColor = getGlowColor(rarity);
+  const nameColor = getRarityNameColor(rarity);
+  const borderColor = getRarityBorderColor(rarity);
+  const glowColor = getRarityGlowColor(rarity);
+  const accentGradient = getRarityAccentGradient(rarity);
 
   // resultモード: コンパクトで静かな表示
   if (mode === 'result') {
@@ -84,18 +51,8 @@ export const NameReveal = ({ name, rarity, isVisible, mode = 'cutin' }: NameReve
           }}
         >
           {/* グラデーションアクセントライン */}
-          <div className={`absolute top-0 left-4 right-4 h-0.5 bg-gradient-to-r ${
-            isSSR ? 'from-yellow-400 via-pink-500 to-purple-500' :
-            rarity === 'SR' ? 'from-yellow-400 via-amber-500 to-yellow-400' :
-            rarity === 'R' ? 'from-blue-400 via-cyan-500 to-blue-400' :
-            'from-gray-400 via-white to-gray-400'
-          }`} />
-          <div className={`absolute bottom-0 left-4 right-4 h-0.5 bg-gradient-to-r ${
-            isSSR ? 'from-purple-500 via-pink-500 to-yellow-400' :
-            rarity === 'SR' ? 'from-yellow-400 via-amber-500 to-yellow-400' :
-            rarity === 'R' ? 'from-blue-400 via-cyan-500 to-blue-400' :
-            'from-gray-400 via-white to-gray-400'
-          }`} />
+          <div className={`absolute top-0 left-4 right-4 h-0.5 bg-gradient-to-r ${accentGradient}`} />
+          <div className={`absolute bottom-0 left-4 right-4 h-0.5 bg-gradient-to-l ${accentGradient}`} />
 
           <h2
             className={`text-3xl font-black text-center tracking-wider ${nameColor}`}
@@ -200,18 +157,8 @@ export const NameReveal = ({ name, rarity, isVisible, mode = 'cutin' }: NameReve
             ))}
 
             {/* グラデーションアクセントライン */}
-            <div className={`absolute top-0 left-10 right-10 h-1 bg-gradient-to-r ${
-              isSSR ? 'from-yellow-400 via-pink-500 to-purple-500' :
-              rarity === 'SR' ? 'from-yellow-400 via-amber-500 to-yellow-400' :
-              rarity === 'R' ? 'from-blue-400 via-cyan-500 to-blue-400' :
-              'from-gray-400 via-white to-gray-400'
-            }`} />
-            <div className={`absolute bottom-0 left-10 right-10 h-1 bg-gradient-to-r ${
-              isSSR ? 'from-purple-500 via-pink-500 to-yellow-400' :
-              rarity === 'SR' ? 'from-yellow-400 via-amber-500 to-yellow-400' :
-              rarity === 'R' ? 'from-blue-400 via-cyan-500 to-blue-400' :
-              'from-gray-400 via-white to-gray-400'
-            }`} />
+            <div className={`absolute top-0 left-10 right-10 h-1 bg-gradient-to-r ${accentGradient}`} />
+            <div className={`absolute bottom-0 left-10 right-10 h-1 bg-gradient-to-l ${accentGradient}`} />
 
             {/* 名前テキスト */}
             <motion.h1

@@ -2,10 +2,8 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
-import { Rarity } from '@/types/gacha';
+import { Rarity, DisplayMode, getRarityAccentGradient } from '@/types/gacha';
 import { soundManager } from '@/lib/sounds';
-
-type DisplayMode = 'cutin' | 'result';
 
 interface SerifDisplayProps {
   serifs: string[];
@@ -13,19 +11,6 @@ interface SerifDisplayProps {
   isVisible: boolean;
   mode?: DisplayMode;
 }
-
-const getAccentColor = (rarity: Rarity): string => {
-  switch (rarity) {
-    case 'SSR':
-      return 'from-yellow-400 via-pink-500 to-purple-500';
-    case 'SR':
-      return 'from-yellow-400 to-amber-500';
-    case 'R':
-      return 'from-blue-400 to-cyan-500';
-    default:
-      return 'from-gray-400 to-gray-500';
-  }
-};
 
 const SERIF_DISPLAY_TIME = 900; // 各セリフの表示時間(ms)
 
@@ -66,7 +51,7 @@ export const SerifDisplay = ({ serifs, rarity, isVisible, mode = 'cutin' }: Seri
   if (!isVisible) return null;
 
   const isSSR = rarity === 'SSR';
-  const accentColor = getAccentColor(rarity);
+  const accentColor = getRarityAccentGradient(rarity);
 
   // resultモード: 下からスライドして登場するシンプルな表示
   if (mode === 'result') {
