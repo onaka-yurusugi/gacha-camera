@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gacha Camera
 
-## Getting Started
+Turn your camera into a gacha game.
 
-First, run the development server:
+[Demo](https://gacha-camera.vercel.app) | [日本語](./README.ja.md)
+
+## Features
+
+- Real-time camera feed with gacha overlay
+- SSR/SR/R/N rarity system with different effects
+- Sound effects & smooth animations
+- Works on mobile browsers (iOS Safari / Android Chrome)
+- Front/back camera switching
+
+## Quick Start
 
 ```bash
+# Clone the repository
+git clone https://github.com/onaka-yurusugi/gacha-camera.git
+cd gacha-camera
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to Use
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Allow camera access when prompted
+2. Tap anywhere on the screen
+3. Watch the gacha animation
+4. Get your character!
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+| Category | Technology | Notes |
+|----------|------------|-------|
+| Framework | Next.js 14+ (App Router) | Vercel optimized |
+| Language | TypeScript | Type safety |
+| Styling | Tailwind CSS | Utility-first |
+| Animation | Framer Motion | Declarative animations |
+| Sound | Howler.js | Cross-browser support |
+| Camera | MediaDevices API | Standard Web API |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Rarity System
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Rarity | Rate | Effect Color |
+|--------|------|--------------|
+| SSR | 3% | Rainbow |
+| SR | 12% | Gold |
+| R | 35% | Blue |
+| N | 50% | White |
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/                    # Next.js App Router
+├── components/
+│   ├── Camera/            # Camera components
+│   ├── Gacha/             # Gacha effect components
+│   └── UI/                # UI components
+├── hooks/                 # Custom hooks
+├── lib/                   # Utilities & data
+└── types/                 # TypeScript types
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
+### Easy ways to contribute
+
+- **Add new characters** - Edit `src/lib/gachaData.ts` and submit a PR
+- **Improve animations** - Enhance the gacha effects
+- **Add translations** - Help with i18n
+- **Report bugs** - Open an issue
+
+## Development
+
+```bash
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Run linter
+npm run lint
+```
+
+## Deployment
+
+This project is optimized for [Vercel](https://vercel.com):
+
+```bash
+# Deploy to Vercel
+vercel
+```
+
+## License
+
+[MIT](./LICENSE)
+
+## Acknowledgments
+
+- Sound effects from [効果音ラボ](https://soundeffect-lab.info/) (placeholder)
+- Inspired by mobile gacha games
