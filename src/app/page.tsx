@@ -9,13 +9,14 @@ import { Header } from '@/components/UI/Header';
 import { SettingsModal } from '@/components/UI/SettingsModal';
 import { WelcomeModal } from '@/components/UI/WelcomeModal';
 import { CoachMark } from '@/components/UI/CoachMark';
+import { SourceModeTab } from '@/components/UI/SourceModeTab';
 import { useCamera } from '@/hooks/useCamera';
 import { useGacha } from '@/hooks/useGacha';
 import { useGachaSettings } from '@/hooks/useGachaSettings';
 import { soundManager } from '@/lib/sounds';
 
 export default function Home() {
-  const { videoRef, isReady, error, switchCamera } = useCamera();
+  const { videoRef, isReady, error, switchCamera, sourceMode, loadFile, switchToCamera } = useCamera();
   const { result, isPlaying, pull, reset } = useGacha();
   const {
     settings,
@@ -91,6 +92,16 @@ export default function Home() {
     setIsSettingsOpen(false);
   }, []);
 
+  const handleFileSelected = useCallback((file: File) => {
+    loadFile(file);
+  }, [loadFile]);
+
+  const handleSourceModeChange = useCallback((mode: 'camera' | 'file') => {
+    if (mode === 'camera') {
+      switchToCamera();
+    }
+  }, [switchToCamera]);
+
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
       {/* Camera background */}
@@ -107,9 +118,22 @@ export default function Home() {
         />
       </AnimatePresence>
 
+      {/* Source mode tab (Camera / File) */}
+      <AnimatePresence>
+        <SourceModeTab
+          currentMode={sourceMode}
+          onModeChange={handleSourceModeChange}
+          onFileSelected={handleFileSelected}
+          isVisible={!isPlaying}
+        />
+      </AnimatePresence>
+
       {/* Summon Gate with door and crystal */}
       <AnimatePresence>
-        <SummonGate isVisible={isReady && !isPlaying} onTap={handleTap} />
+        <SummonGate
+          isVisible={isReady && !isPlaying}
+          onTap={handleTap}
+        />
       </AnimatePresence>
 
       {/* Gacha animation overlay */}
