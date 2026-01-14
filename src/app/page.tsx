@@ -9,13 +9,14 @@ import { Header } from '@/components/UI/Header';
 import { SettingsModal } from '@/components/UI/SettingsModal';
 import { WelcomeModal } from '@/components/UI/WelcomeModal';
 import { CoachMark } from '@/components/UI/CoachMark';
+import { FileUploadButton } from '@/components/UI/FileUploadButton';
 import { useCamera } from '@/hooks/useCamera';
 import { useGacha } from '@/hooks/useGacha';
 import { useGachaSettings } from '@/hooks/useGachaSettings';
 import { soundManager } from '@/lib/sounds';
 
 export default function Home() {
-  const { videoRef, isReady, error, switchCamera } = useCamera();
+  const { videoRef, isReady, error, switchCamera, sourceMode, loadFile } = useCamera();
   const { result, isPlaying, pull, reset } = useGacha();
   const {
     settings,
@@ -91,6 +92,10 @@ export default function Home() {
     setIsSettingsOpen(false);
   }, []);
 
+  const handleFileSelected = useCallback((file: File) => {
+    loadFile(file);
+  }, [loadFile]);
+
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
       {/* Camera background */}
@@ -106,6 +111,9 @@ export default function Home() {
           isVisible={!isPlaying}
         />
       </AnimatePresence>
+
+      {/* File Upload Button */}
+      <FileUploadButton onFileSelected={handleFileSelected} isVisible={!isPlaying && sourceMode === 'camera'} />
 
       {/* Summon Gate with door and crystal */}
       <AnimatePresence>

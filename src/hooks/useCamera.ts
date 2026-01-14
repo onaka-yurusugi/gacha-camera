@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type FacingMode = 'user' | 'environment';
+type SourceMode = 'camera' | 'file';
 
 interface UseCameraReturn {
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -10,9 +11,11 @@ interface UseCameraReturn {
   isReady: boolean;
   error: string | null;
   facingMode: FacingMode;
+  sourceMode: SourceMode;
   switchCamera: () => void;
   startCamera: () => Promise<void>;
   stopCamera: () => void;
+  loadFile: (file: File) => Promise<void>;
 }
 
 export const useCamera = (): UseCameraReturn => {
@@ -21,6 +24,7 @@ export const useCamera = (): UseCameraReturn => {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<FacingMode>('environment');
+  const [sourceMode, setSourceMode] = useState<SourceMode>('camera');
 
   const stopCamera = useCallback(() => {
     if (stream) {
@@ -66,6 +70,44 @@ export const useCamera = (): UseCameraReturn => {
     setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
   }, []);
 
+  const loadFile = useCallback(async (file: File) => {
+    try {
+      setError(null);
+
+      // カメラが動いていたら停止
+      if (stream) {
+        stopCamera();
+      }
+
+      // ファイルからURLを作成
+      const url = URL.createObjectURL(file);
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+        videoRef.current.src = url;
+        videoRef.current.loop = true;
+
+        // 画像の場合は静止画として表示
+        if (file.type.startsWith('image/')) {
+          videoRef.current.poster = url;
+          await videoRef.current.play().catch(() => {
+            // 画像の場合は再生エラーを無視
+          });
+        } else {
+          // 動画の場合は再生
+          await videoRef.current.play();
+        }
+
+        setSourceMode('file');
+        setIsReady(true);
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'ファイルの読み込みに失敗しました';
+      setError(errorMessage);
+      setIsReady(false);
+    }
+  }, [stream, stopCamera]);
+
   useEffect(() => {
     startCamera();
 
@@ -83,8 +125,10 @@ export const useCamera = (): UseCameraReturn => {
     isReady,
     error,
     facingMode,
+    sourceMode,
     switchCamera,
     startCamera,
     stopCamera,
+    loadFile,
   };
 };
