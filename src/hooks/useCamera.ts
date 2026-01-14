@@ -16,6 +16,7 @@ interface UseCameraReturn {
   startCamera: () => Promise<void>;
   stopCamera: () => void;
   loadFile: (file: File) => Promise<void>;
+  switchToCamera: () => void;
 }
 
 export const useCamera = (): UseCameraReturn => {
@@ -108,6 +109,18 @@ export const useCamera = (): UseCameraReturn => {
     }
   }, [stream, stopCamera]);
 
+  const switchToCamera = useCallback(() => {
+    if (sourceMode === 'file') {
+      // ファイルモードからカメラに戻る
+      if (videoRef.current) {
+        videoRef.current.src = '';
+        videoRef.current.poster = '';
+      }
+      setSourceMode('camera');
+      startCamera();
+    }
+  }, [sourceMode, startCamera]);
+
   useEffect(() => {
     startCamera();
 
@@ -130,5 +143,6 @@ export const useCamera = (): UseCameraReturn => {
     startCamera,
     stopCamera,
     loadFile,
+    switchToCamera,
   };
 };
