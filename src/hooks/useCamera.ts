@@ -21,6 +21,7 @@ interface UseCameraReturn {
 
 export const useCamera = (): UseCameraReturn => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,8 +81,14 @@ export const useCamera = (): UseCameraReturn => {
         stopCamera();
       }
 
+      // 既存のObject URLを解放
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+      }
+
       // ファイルからURLを作成
       const url = URL.createObjectURL(file);
+      objectUrlRef.current = url;
 
       if (videoRef.current) {
         videoRef.current.srcObject = null;
@@ -111,6 +118,11 @@ export const useCamera = (): UseCameraReturn => {
 
   const switchToCamera = useCallback(() => {
     if (sourceMode === 'file') {
+      // Object URLを解放
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
       // ファイルモードからカメラに戻る
       if (videoRef.current) {
         videoRef.current.src = '';
@@ -125,6 +137,10 @@ export const useCamera = (): UseCameraReturn => {
     startCamera();
 
     return () => {
+      // Object URLを解放
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+      }
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
       }
