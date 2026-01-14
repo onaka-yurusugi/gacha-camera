@@ -73,7 +73,7 @@ export const SourceModeTab = ({
           {/* Camera tab */}
           <button
             onClick={handleCameraClick}
-            className="relative flex items-center gap-2.5 px-6 py-4 transition-all duration-300"
+            className="relative flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300"
           >
             {currentMode === 'camera' && (
               <motion.div
@@ -90,14 +90,14 @@ export const SourceModeTab = ({
               </motion.div>
             )}
             <Camera
-              className={`w-6 h-6 relative z-10 transition-all duration-300 ${
+              className={`w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 relative z-10 transition-all duration-300 ${
                 currentMode === 'camera'
                   ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]'
                   : 'text-gray-400'
               }`}
             />
             <span
-              className={`relative z-10 font-bold text-base tracking-wide transition-all duration-300 ${
+              className={`relative z-10 font-bold text-sm sm:text-base tracking-wide transition-all duration-300 whitespace-nowrap ${
                 currentMode === 'camera'
                   ? 'text-amber-100 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]'
                   : 'text-gray-400'
@@ -115,7 +115,7 @@ export const SourceModeTab = ({
           {/* File tab */}
           <button
             onClick={handleFileTabClick}
-            className="relative flex items-center gap-2.5 px-6 py-4 transition-all duration-300"
+            className="relative flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300"
           >
             {currentMode === 'file' && (
               <motion.div
@@ -132,14 +132,14 @@ export const SourceModeTab = ({
               </motion.div>
             )}
             <ImageIcon
-              className={`w-6 h-6 relative z-10 transition-all duration-300 ${
+              className={`w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 relative z-10 transition-all duration-300 ${
                 currentMode === 'file'
                   ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]'
                   : 'text-gray-400'
               }`}
             />
             <span
-              className={`relative z-10 font-bold text-base tracking-wide transition-all duration-300 whitespace-nowrap ${
+              className={`relative z-10 font-bold text-sm sm:text-base tracking-wide transition-all duration-300 whitespace-nowrap ${
                 currentMode === 'file'
                   ? 'text-amber-100 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]'
                   : 'text-gray-400'
