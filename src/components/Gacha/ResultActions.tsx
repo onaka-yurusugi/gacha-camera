@@ -42,14 +42,35 @@ export const ResultActions = ({ result, onRetry, isVisible }: ResultActionsProps
 
         // videoのフレームをcanvasに描画
         tempCanvas = document.createElement('canvas');
-        const videoWidth = video.videoWidth || video.clientWidth;
-        const videoHeight = video.videoHeight || video.clientHeight;
-        tempCanvas.width = videoWidth;
-        tempCanvas.height = videoHeight;
 
-        const ctx = tempCanvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+        // 画像がposterとして設定されている場合（アップロードされた画像）
+        const posterUrl = video.poster;
+        if (posterUrl && posterUrl !== '') {
+          // posterから画像を取得してcanvasに描画
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = () => reject(new Error('Image load failed'));
+            img.src = posterUrl;
+          });
+          tempCanvas.width = img.naturalWidth || video.clientWidth;
+          tempCanvas.height = img.naturalHeight || video.clientHeight;
+          const ctx = tempCanvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
+          }
+        } else {
+          // 動画またはカメラの場合
+          const videoWidth = video.videoWidth || video.clientWidth;
+          const videoHeight = video.videoHeight || video.clientHeight;
+          tempCanvas.width = videoWidth;
+          tempCanvas.height = videoHeight;
+
+          const ctx = tempCanvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+          }
         }
 
         // videoと同じスタイルを適用
