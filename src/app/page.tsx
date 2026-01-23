@@ -14,6 +14,7 @@ import { useCamera } from '@/hooks/useCamera';
 import { useGacha } from '@/hooks/useGacha';
 import { useGachaSettings } from '@/hooks/useGachaSettings';
 import { soundManager } from '@/lib/sounds';
+import { ttsManager } from '@/lib/tts';
 
 export default function Home() {
   const { videoRef, isReady, error, switchCamera, sourceMode, loadFile, switchToCamera } = useCamera();
@@ -82,6 +83,8 @@ export default function Home() {
   const handleMuteToggle = useCallback(() => {
     const newMuted = soundManager.toggleMute();
     setIsMuted(newMuted);
+    // TTSもミュート状態を同期
+    ttsManager.setMuted(newMuted);
   }, []);
 
   const handleSettingsOpen = useCallback(() => {

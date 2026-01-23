@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { Rarity, DisplayMode, getRarityAccentGradient } from '@/types/gacha';
 import { soundManager } from '@/lib/sounds';
+import { ttsManager } from '@/lib/tts';
 
 interface SerifDisplayProps {
   serifs: string[];
@@ -22,6 +23,8 @@ export const SerifDisplay = ({ serifs, rarity, isVisible, mode = 'cutin' }: Seri
     if (!isVisible) {
       setCurrentIndex(0);
       prevIndexRef.current = 0;
+      // TTSを停止
+      ttsManager.stop();
       return;
     }
 
@@ -40,13 +43,19 @@ export const SerifDisplay = ({ serifs, rarity, isVisible, mode = 'cutin' }: Seri
     }
   }, [isVisible, currentIndex, serifs.length, mode]);
 
-  // セリフが増えたらSEを再生（cutinモードのみ）
+  // セリフが増えたらSEを再生とTTS読み上げ（cutinモードのみ）
   useEffect(() => {
     if (mode === 'cutin' && currentIndex > prevIndexRef.current && currentIndex <= serifs.length) {
       soundManager.play('serifAppear');
+
+      // 新しいセリフをTTSで読み上げ
+      const newSerifIndex = currentIndex - 1;
+      if (newSerifIndex >= 0 && newSerifIndex < serifs.length) {
+        ttsManager.speak(serifs[newSerifIndex]);
+      }
     }
     prevIndexRef.current = currentIndex;
-  }, [currentIndex, serifs.length, mode]);
+  }, [currentIndex, serifs.length, mode, serifs]);
 
   if (!isVisible) return null;
 
