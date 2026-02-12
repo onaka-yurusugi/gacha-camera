@@ -27,10 +27,10 @@ const ModeToggle = ({
   mode: GachaMode;
   onChange: (mode: GachaMode) => void;
 }) => (
-  <div className="flex gap-1 bg-white/10 p-1 rounded-full">
+  <div className="flex gap-1 bg-white/10 p-1 rounded-lg">
     <button
       type="button"
-      className={`flex-1 px-4 py-2 rounded-full transition-all text-sm font-medium ${
+      className={`flex-1 px-3 py-2 rounded-md transition-all text-xs font-medium ${
         mode === 'random'
           ? 'bg-white text-black'
           : 'text-white/70 hover:text-white'
@@ -41,7 +41,18 @@ const ModeToggle = ({
     </button>
     <button
       type="button"
-      className={`flex-1 px-4 py-2 rounded-full transition-all text-sm font-medium ${
+      className={`flex-1 px-3 py-2 rounded-md transition-all text-xs font-medium ${
+        mode === 'ai'
+          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+          : 'text-white/70 hover:text-white'
+      }`}
+      onClick={() => onChange('ai')}
+    >
+      AI判定
+    </button>
+    <button
+      type="button"
+      className={`flex-1 px-3 py-2 rounded-md transition-all text-xs font-medium ${
         mode === 'custom'
           ? 'bg-white text-black'
           : 'text-white/70 hover:text-white'
@@ -90,6 +101,7 @@ export const SettingsModal = ({
   onSerifsChange,
 }: SettingsModalProps) => {
   const isCustomMode = settings.mode === 'custom';
+  const isAIMode = settings.mode === 'ai';
   const { customSettings } = settings;
 
   // セリフを改行区切りのテキストとして扱う
@@ -148,6 +160,37 @@ export const SettingsModal = ({
                 <label className="block text-sm text-white/60 mb-2">モード</label>
                 <ModeToggle mode={settings.mode} onChange={onModeChange} />
               </div>
+
+              {/* AI Mode Description */}
+              <AnimatePresence>
+                {isAIMode && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-3 overflow-hidden mb-6"
+                  >
+                    <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-lg p-4">
+                      <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                        <span className="text-lg">🤖</span>
+                        AI自動判定モード
+                      </h3>
+                      <p className="text-xs text-white/70 leading-relaxed">
+                        カメラで撮影した人物をAIが自動分析！レアリティ、名前、セリフを自動で決めます。
+                      </p>
+                      <div className="mt-3 text-xs text-white/50">
+                        <p>💡 API keyが必要です</p>
+                        <p className="mt-1">
+                          <code className="bg-black/30 px-2 py-0.5 rounded text-[10px]">
+                            .env.local
+                          </code>
+                          {' '}に設定してください
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Custom Settings (only shown in custom mode) */}
               <AnimatePresence>
@@ -225,11 +268,13 @@ export const SettingsModal = ({
               {/* Current mode indicator */}
               <div className="mt-6 pt-4 border-t border-white/10">
                 <p className="text-xs text-white/40 text-center">
-                  {isCustomMode
-                    ? customSettings.name && hasValidSerifs
-                      ? `${RARITY_CONFIG[customSettings.rarity].label} 「${customSettings.name}」が出るよ`
-                      : '設定を完了してね'
-                    : 'タップでランダム召喚'}
+                  {isAIMode
+                    ? 'タップでAI判定召喚🤖'
+                    : isCustomMode
+                      ? customSettings.name && hasValidSerifs
+                        ? `${RARITY_CONFIG[customSettings.rarity].label} 「${customSettings.name}」が出るよ`
+                        : '設定を完了してね'
+                      : 'タップでランダム召喚'}
                 </p>
               </div>
             </motion.div>

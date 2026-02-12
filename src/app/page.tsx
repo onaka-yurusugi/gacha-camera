@@ -10,6 +10,7 @@ import { SettingsModal } from '@/components/UI/SettingsModal';
 import { WelcomeModal } from '@/components/UI/WelcomeModal';
 import { CoachMark } from '@/components/UI/CoachMark';
 import { SourceModeTab } from '@/components/UI/SourceModeTab';
+import { AIAnalyzing } from '@/components/UI/AIAnalyzing';
 import { useCamera } from '@/hooks/useCamera';
 import { useGacha } from '@/hooks/useGacha';
 import { useGachaSettings } from '@/hooks/useGachaSettings';
@@ -17,7 +18,7 @@ import { soundManager } from '@/lib/sounds';
 
 export default function Home() {
   const { videoRef, isReady, error, switchCamera, sourceMode, loadFile, switchToCamera } = useCamera();
-  const { result, isPlaying, pull, reset } = useGacha();
+  const { result, isPlaying, isAnalyzing, pull, reset, error: gachaError } = useGacha();
   const {
     settings,
     setMode,
@@ -43,41 +44,59 @@ export default function Home() {
   }, [isInitialized]);
 
 
-  const handleTap = useCallback(() => {
+  const handleTap = useCallback(async () => {
     if (!isPlaying && isReady) {
       // タップした瞬間に音を鳴らす（Reactのレンダリング待ちを回避）
       soundManager.play('gachaRoll');
 
+      const isAIMode = settings.mode === 'ai';
+
+      // AIモード: videoRefを渡してAI判定
+      if (isAIMode) {
+        await pull({
+          useAI: true,
+          videoElement: videoRef.current,
+        });
+      }
       // カスタムモードかつ有効な設定がある場合
-      if (isCustomMode && isValidCustomSettings) {
-        pull({
+      else if (isCustomMode && isValidCustomSettings) {
+        await pull({
           useCustom: true,
           customSettings: settings.customSettings,
         });
-      } else {
-        pull();
+      }
+      // ランダムモード
+      else {
+        await pull();
       }
     }
-  }, [isPlaying, isReady, pull, isCustomMode, isValidCustomSettings, settings.customSettings]);
+  }, [isPlaying, isReady, pull, isCustomMode, isValidCustomSettings, settings.customSettings, settings.mode, videoRef]);
 
   const handleComplete = useCallback(() => {
     reset();
   }, [reset]);
 
-  const handleRetry = useCallback(() => {
+  const handleRetry = useCallback(async () => {
     reset();
     // 少し待ってから再召喚
-    setTimeout(() => {
-      if (isCustomMode && isValidCustomSettings) {
-        pull({
+    setTimeout(async () => {
+      const isAIMode = settings.mode === 'ai';
+
+      if (isAIMode) {
+        await pull({
+          useAI: true,
+          videoElement: videoRef.current,
+        });
+      } else if (isCustomMode && isValidCustomSettings) {
+        await pull({
           useCustom: true,
           customSettings: settings.customSettings,
         });
       } else {
-        pull();
+        await pull();
       }
     }, 100);
-  }, [reset, pull, isCustomMode, isValidCustomSettings, settings.customSettings]);
+  }, [reset, pull, isCustomMode, isValidCustomSettings, settings.customSettings, settings.mode, videoRef]);
 
   const handleMuteToggle = useCallback(() => {
     const newMuted = soundManager.toggleMute();
@@ -146,6 +165,11 @@ export default function Home() {
         />
       </AnimatePresence>
 
+      {/* AI Analyzing Overlay */}
+      <AnimatePresence>
+        <AIAnalyzing isVisible={isAnalyzing} />
+      </AnimatePresence>
+
       {/* Settings Modal */}
       <SettingsModal
         isOpen={isSettingsOpen}
@@ -162,6 +186,23 @@ export default function Home() {
 
       {/* Tutorial: Coach Mark for Settings Button */}
       <CoachMark isVisible={showCoachMark} onDismiss={completeCoachMark} />
+
+      {/* Error Toast */}
+      <AnimatePresence>
+        {gachaError && (
+          <motion.div
+            className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[110] max-w-sm mx-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+          >
+            <div className="bg-red-500/90 backdrop-blur-sm text-white px-6 py-4 rounded-xl shadow-lg border border-red-400/50">
+              <p className="text-sm font-medium">⚠️ エラー</p>
+              <p className="text-xs mt-1 opacity-90">{gachaError}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

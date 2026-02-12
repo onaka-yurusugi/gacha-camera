@@ -13,6 +13,7 @@ https://x.com/onaka_yuruyuri/status/2011070418833326289
 - モバイルブラウザ対応（iOS Safari / Android Chrome）
 - フロント/バックカメラ切り替え
 - 結果画像の保存・シェア機能
+- **🆕 AI判定モード**: AIが人物を分析してレアリティ・名前・セリフを自動生成
 - カスタムキャラクター設定
 
 ## クイックスタート
@@ -24,6 +25,11 @@ cd gacha-camera
 
 # 依存関係をインストール
 npm install
+
+# （オプション）AI判定モードを使う場合
+# .env.local ファイルを作成してAnthropic API Keyを設定
+cp .env.local.example .env.local
+# .env.local を編集してAPIキーを入力
 
 # 開発サーバーを起動
 npm run dev
@@ -39,9 +45,30 @@ npm run dev
 4. キャラクターをゲット！
 5. 結果を保存・シェア
 
-### カスタム設定
+### ガチャモード
 
-設定画面からオリジナルのキャラクターを追加できます。名前、レアリティ、セリフを自由に設定可能！
+アプリには3つのモードがあります：
+
+1. **ランダムモード**: 登録されたキャラクタープールからランダムに選択
+2. **AI判定モード** 🆕: AIが撮影した人物を分析してレアリティ・名前・セリフを自動生成
+3. **カスタムモード**: 自分で設定したキャラクターが必ず出現
+
+### AI判定モードの設定
+
+AI判定モードを使用するには、Anthropic APIキーが必要です：
+
+1. [Anthropic Console](https://console.anthropic.com/settings/keys) でAPIキーを取得
+2. プロジェクトルートに `.env.local` ファイルを作成
+3. 以下の内容を記述：
+
+```bash
+NEXT_PUBLIC_ANTHROPIC_API_KEY=your_api_key_here
+```
+
+4. 開発サーバーを再起動
+5. 設定画面で「AI判定」モードを選択
+
+**注意**: APIキーはクライアントサイドで使用されるため、本番環境では適切なレート制限やセキュリティ対策を実施してください。
 
 ## 技術スタック
 
@@ -54,6 +81,7 @@ npm run dev
 | サウンド | Howler.js | クロスブラウザ対応 |
 | カメラ | MediaDevices API | 標準Web API |
 | スクリーンショット | modern-screenshot | 画像保存・シェア |
+| AI分析 | Anthropic Claude API | 画像認識・テキスト生成 |
 
 ## レアリティシステム
 
@@ -120,10 +148,12 @@ src/
 │       └── SettingsModal.tsx     # 設定モーダル
 ├── hooks/                 # カスタムフック
 │   ├── useCamera.ts       # カメラ制御
-│   └── useGacha.ts        # ガチャロジック
+│   ├── useGacha.ts        # ガチャロジック
+│   └── useGachaSettings.ts # 設定管理
 ├── lib/                   # ユーティリティ
 │   ├── gachaData.ts       # キャラクターデータ
-│   └── sounds.ts          # サウンドマネージャー
+│   ├── sounds.ts          # サウンドマネージャー
+│   └── aiAnalysis.ts      # AI画像分析（Anthropic API）
 └── types/                 # TypeScript型定義
     └── gacha.ts           # レアリティ・キャラクター型
 ```

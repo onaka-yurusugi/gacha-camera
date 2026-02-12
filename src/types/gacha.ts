@@ -24,7 +24,7 @@ export interface RarityConfig {
 }
 
 // Gacha Mode Types
-export type GachaMode = 'random' | 'custom';
+export type GachaMode = 'random' | 'custom' | 'ai';
 
 export interface CustomGachaSettings {
   rarity: Rarity;
